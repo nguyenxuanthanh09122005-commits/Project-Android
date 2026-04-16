@@ -1,13 +1,29 @@
-package com.example.movie_booking;
+package com.example.movie_booking.object;
 
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.ForeignKey;
+import androidx.room.PrimaryKey;
 import java.io.Serializable;
 
+@Entity(tableName = "DonDatVe",
+        foreignKeys = {
+                @ForeignKey(entity = NguoiDung.class,
+                        parentColumns = "id_nguoi_dung",
+                        childColumns = "id_nguoi_dung"),
+                @ForeignKey(entity = SuatChieu.class,
+                        parentColumns = "id_suat_chieu",
+                        childColumns = "id_suat_chieu")
+        })
 public class DonDatVe implements Serializable {
-    private int id_don_ve;
+    @PrimaryKey(autoGenerate = true)
+    private Integer id_don_ve;
     private int id_nguoi_dung;
     private int id_suat_chieu;
+    @ColumnInfo(defaultValue = "CURRENT_TIMESTAMP")
     private String ngay_dat;
     private double tong_tien;
+    @ColumnInfo(defaultValue = "ChoThanhToan")
     private String trang_thai;
 
     public DonDatVe() {}

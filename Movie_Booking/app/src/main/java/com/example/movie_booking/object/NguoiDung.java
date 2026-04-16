@@ -1,18 +1,33 @@
-package com.example.movie_booking;
+package com.example.movie_booking.object;
 
+import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
 import java.io.Serializable;
 
+@Entity(tableName = "NguoiDung")
 public class NguoiDung implements Serializable {
-    private int id_nguoi_dung;
+    @PrimaryKey(autoGenerate = true)
+    private Integer id_nguoi_dung;
+
+    @NonNull
     private String ho_ten;
+
+    @NonNull
     private String email;
+
+    @NonNull
     private String mat_khau;
+
     private String so_dien_thoai;
+
+    @ColumnInfo(defaultValue = "KhachHang")
     private String vai_tro;
 
     public NguoiDung() {}
 
-    public NguoiDung(int id_nguoi_dung, String ho_ten, String email, String mat_khau, String so_dien_thoai, String vai_tro) {
+    public NguoiDung(int id_nguoi_dung, @NonNull String ho_ten, @NonNull String email, @NonNull String mat_khau, String so_dien_thoai, String vai_tro) {
         this.id_nguoi_dung = id_nguoi_dung;
         this.ho_ten = ho_ten;
         this.email = email;
@@ -24,14 +39,17 @@ public class NguoiDung implements Serializable {
     public int getId_nguoi_dung() { return id_nguoi_dung; }
     public void setId_nguoi_dung(int id_nguoi_dung) { this.id_nguoi_dung = id_nguoi_dung; }
 
+    @NonNull
     public String getHo_ten() { return ho_ten; }
-    public void setHo_ten(String ho_ten) { this.ho_ten = ho_ten; }
+    public void setHo_ten(@NonNull String ho_ten) { this.ho_ten = ho_ten; }
 
+    @NonNull
     public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
+    public void setEmail(@NonNull String email) { this.email = email; }
 
+    @NonNull
     public String getMat_khau() { return mat_khau; }
-    public void setMat_khau(String mat_khau) { this.mat_khau = mat_khau; }
+    public void setMat_khau(@NonNull String mat_khau) { this.mat_khau = mat_khau; }
 
     public String getSo_dien_thoai() { return so_dien_thoai; }
     public void setSo_dien_thoai(String so_dien_thoai) { this.so_dien_thoai = so_dien_thoai; }

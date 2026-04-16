@@ -1,7 +1,19 @@
-package com.example.movie_booking;
+package com.example.movie_booking.object;
 
+import androidx.room.Entity;
+import androidx.room.ForeignKey;
 import java.io.Serializable;
 
+@Entity(tableName = "ChiTietVe",
+        primaryKeys = {"id_don_ve", "id_ghe"},
+        foreignKeys = {
+                @ForeignKey(entity = DonDatVe.class,
+                        parentColumns = "id_don_ve",
+                        childColumns = "id_don_ve"),
+                @ForeignKey(entity = Ghe.class,
+                        parentColumns = "id_ghe",
+                        childColumns = "id_ghe")
+        })
 public class ChiTietVe implements Serializable {
     private int id_don_ve;
     private int id_ghe;

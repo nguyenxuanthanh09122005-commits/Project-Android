@@ -8,14 +8,14 @@
 
     <!-- Header -->
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/header"
+        android:id="@+id/cum_dau_trang"
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:background="#00468C"
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
-            android:id="@+id/btnBack"
+            android:id="@+id/btnQuayLai"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:padding="12dp"
@@ -43,7 +43,7 @@
         android:layout_height="0dp"
         android:fillViewport="true"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/header">
+        app:layout_constraintTop_toBottomOf="@id/cum_dau_trang">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -69,11 +69,11 @@
                     android:background="@drawable/bg_gradient_movie" />
 
                 <TextView
-                    android:id="@+id/tvMovieTitle"
+                    android:id="@+id/tvTenPhim"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="80dp"
-                    android:text="Mùi Phở"
+                    android:text="Tên Phim"
                     android:textColor="@android:color/white"
                     android:textSize="22sp"
                     android:textStyle="bold"
@@ -82,16 +82,16 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
-                    android:id="@+id/tvMovieInfo"
+                    android:id="@+id/tvThongTinPhim"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:text="Hài hước, Tình cảm, Gia đình | 111 phút"
+                    android:text="Thể loại | Độ tuổi | Thời lượng"
                     android:textColor="#E0E0E0"
                     android:textSize="14sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/tvMovieTitle" />
+                    app:layout_constraintTop_toBottomOf="@id/tvTenPhim" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -105,11 +105,11 @@
                     android:textSize="14sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/tvMovieInfo" />
+                    app:layout_constraintTop_toBottomOf="@id/tvThongTinPhim" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <!-- Date Selection (Can be a Horizontal RecyclerView in the future) -->
+            <!-- Date Selection -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -118,7 +118,7 @@
                 android:padding="16dp">
 
                 <TextView
-                    android:id="@+id/tvSelectedDay"
+                    android:id="@+id/tvNgayDaChon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="15"
@@ -127,7 +127,7 @@
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/tvSelectedDateLabel"
+                    android:id="@+id/tvNhanNgayDaChon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Hôm nay"
@@ -164,13 +164,13 @@
 
             <!-- Showtime List -->
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvShowtimes"
+                android:id="@+id/rvLichChieu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="#F5F5F5"
                 android:padding="16dp"
                 android:clipToPadding="false"
-                tools:listitem="@layout/item_theater_showtime" />
+                tools:listitem="@layout/item_rap" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

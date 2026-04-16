@@ -40,7 +40,7 @@ dependencies {
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
     implementation("androidx.core:core-splashscreen:1.0.1")
-    val room_version = "2.8.4"
+    val room_version = "2.6.1"
 
     implementation("androidx.room:room-runtime:$room_version")
 

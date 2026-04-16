@@ -1,10 +1,21 @@
-package com.example.movie_booking;
+package com.example.movie_booking.object;
 
+import androidx.annotation.NonNull;
+import androidx.room.Entity;
+import androidx.room.ForeignKey;
+import androidx.room.PrimaryKey;
 import java.io.Serializable;
 
+@Entity(tableName = "PhongChieu",
+        foreignKeys = @ForeignKey(entity = Rap.class,
+                parentColumns = "id_rap",
+                childColumns = "id_rap",
+                onDelete = ForeignKey.CASCADE))
 public class PhongChieu implements Serializable {
-    private int id_phong;
+    @PrimaryKey(autoGenerate = true)
+    private Integer id_phong;
     private int id_rap;
+    @NonNull
     private String ten_phong;
     private int tong_so_ghe;
 
