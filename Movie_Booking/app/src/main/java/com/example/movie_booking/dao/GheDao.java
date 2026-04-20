@@ -21,4 +21,10 @@ public interface GheDao {
 
     @Query("SELECT * FROM Ghe WHERE id_phong = :idPhong")
     List<Ghe> getGheByPhong(int idPhong);
+
+    @Query("SELECT g.* FROM Ghe g " +
+           "JOIN ChiTietVe ctv ON g.id_ghe = ctv.id_ghe " +
+           "JOIN DonDatVe ddv ON ctv.id_don_ve = ddv.id_don_ve " +
+           "WHERE ddv.id_suat_chieu = :idSuatChieu")
+    List<Ghe> getGheDaDat(int idSuatChieu);
 }

@@ -1,5 +1,7 @@
 package adapter;
 
+import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.movie_booking.R;
+import com.example.movie_booking.activity.ChonGheActivity;
 import com.example.movie_booking.object.SuatChieu;
 
 import java.util.List;
@@ -29,11 +32,26 @@ public class SuatChieuAdapter extends RecyclerView.Adapter<SuatChieuAdapter.Suat
     @Override
     public void onBindViewHolder(@NonNull SuatChieuViewHolder holder, int position) {
         SuatChieu suatChieu = danhSachSuatChieu.get(position);
-        holder.tvGioChieu.setText(suatChieu.getThoi_gian_bat_dau());
         
+        String fullTime = suatChieu.getThoi_gian_bat_dau();
+        if (fullTime != null && fullTime.contains(" ")) {
+            String timePart = fullTime.split(" ")[1];
+            if (timePart.length() >= 5) {
+                holder.tvGioChieu.setText(timePart.substring(0, 5));
+            } else {
+                holder.tvGioChieu.setText(timePart);
+            }
+        }
+
         holder.itemView.setOnClickListener(v -> {
-            // Xử lý khi chọn suất chiếu
+            navigateToSeatSelection(v.getContext(), suatChieu);
         });
+    }
+
+    private void navigateToSeatSelection(Context context, SuatChieu suatChieu) {
+        Intent intent = new Intent(context, ChonGheActivity.class);
+        intent.putExtra("suat_chieu_data", suatChieu);
+        context.startActivity(intent);
     }
 
     @Override

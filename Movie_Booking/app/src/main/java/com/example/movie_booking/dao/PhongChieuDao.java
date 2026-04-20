@@ -21,4 +21,7 @@ public interface PhongChieuDao {
 
     @Query("SELECT * FROM PhongChieu WHERE id_rap = :idRap")
     List<PhongChieu> getPhongByRap(int idRap);
+
+    @Query("SELECT * FROM PhongChieu WHERE id_phong = :idPhong")
+    PhongChieu getPhongById(int idPhong);
 }

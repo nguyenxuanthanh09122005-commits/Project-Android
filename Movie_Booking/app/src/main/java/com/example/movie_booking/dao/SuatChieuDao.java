@@ -28,7 +28,10 @@ public interface SuatChieuDao {
            "WHERE s.id_suat_chieu = :idSuatChieu")
     String getTenRapBySuatChieu(int idSuatChieu);
 
-    @Query("SELECT r.ten_rap, s.id_suat_chieu, s.id_phim, s.id_phong, s.thoi_gian_bat_dau, s.thoi_gian_ket_thuc, s.gia_ve_co_ban " +
+    @Query("SELECT r.thanh_pho FROM Rap r WHERE r.ten_rap = :tenRap LIMIT 1")
+    String getThanhPhoByRap(String tenRap);
+
+    @Query("SELECT r.ten_rap, s.id_suat_chieu, s.id_phim, s.id_phong, s.thoi_gian_bat_dau, s.thoi_gian_ket_thuc, s.gia_ve_co_ban, p.ten_phong " +
            "FROM SuatChieu s " +
            "JOIN PhongChieu p ON s.id_phong = p.id_phong " +
            "JOIN Rap r ON p.id_rap = r.id_rap " +
@@ -43,6 +46,7 @@ public interface SuatChieuDao {
         public String thoi_gian_bat_dau;
         public String thoi_gian_ket_thuc;
         public double gia_ve_co_ban;
+        public String ten_phong;
 
         public SuatChieu toSuatChieu() {
             return new SuatChieu(id_suat_chieu, id_phim, id_phong, thoi_gian_bat_dau, thoi_gian_ket_thuc, gia_ve_co_ban);

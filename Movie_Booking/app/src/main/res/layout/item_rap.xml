@@ -13,13 +13,36 @@
         android:orientation="vertical"
         android:padding="12dp">
 
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/tvTenRap"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tên rạp chiếu phim"
+                android:textColor="#424242"
+                android:textSize="16sp" />
+
+
+            <ImageView
+                android:id="@+id/imgArrow"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_alignParentEnd="true"
+                android:src="@android:drawable/arrow_up_float"
+                app:tint="#000000" />
+        </RelativeLayout>
+
         <TextView
-            android:id="@+id/tvTenRap"
+            android:id="@+id/tvTenPhong"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Tên rạp chiếu phim"
-            android:textColor="#00468C"
-            android:textSize="16sp"
+            android:layout_marginTop="8dp"
+            android:text="2D PHỤ ĐỀ"
+            android:textColor="#000000"
+            android:textSize="15sp"
             android:textStyle="bold" />
 
         <androidx.recyclerview.widget.RecyclerView

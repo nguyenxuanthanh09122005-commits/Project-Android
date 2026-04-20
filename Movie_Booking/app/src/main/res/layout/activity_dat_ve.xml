@@ -94,6 +94,7 @@
                     app:layout_constraintTop_toBottomOf="@id/tvTenPhim" />
 
                 <TextView
+                    android:id="@+id/tvChiTietPhim"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
@@ -103,38 +104,24 @@
                     android:text="Chi tiết phim"
                     android:textColor="@android:color/white"
                     android:textSize="14sp"
+                    android:clickable="true"
+                    android:focusable="true"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/tvThongTinPhim" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <!-- Date Selection -->
-            <LinearLayout
+            <!-- Date Selection RecyclerView -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvNgay"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="#F5F5F5"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <TextView
-                    android:id="@+id/tvNgayDaChon"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="15"
-                    android:textColor="#E53935"
-                    android:textSize="24sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/tvNhanNgayDaChon"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Hôm nay"
-                    android:textColor="#E53935"
-                    android:textSize="14sp" />
-
-            </LinearLayout>
+                android:padding="8dp"
+                android:orientation="horizontal"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/item_ngay" />
 
             <!-- Region selection bar -->
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -152,6 +139,7 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
+                    android:id="@+id/tvChonKhuVuc"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Tất cả >"
@@ -168,8 +156,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="#F5F5F5"
-                android:padding="16dp"
                 android:clipToPadding="false"
+                android:padding="16dp"
                 tools:listitem="@layout/item_rap" />
 
         </LinearLayout>

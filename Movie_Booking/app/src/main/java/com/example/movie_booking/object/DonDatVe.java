@@ -28,7 +28,7 @@ public class DonDatVe implements Serializable {
 
     public DonDatVe() {}
 
-    public DonDatVe(int id_don_ve, int id_nguoi_dung, int id_suat_chieu, String ngay_dat, double tong_tien, String trang_thai) {
+    public DonDatVe(Integer id_don_ve, int id_nguoi_dung, int id_suat_chieu, String ngay_dat, double tong_tien, String trang_thai) {
         this.id_don_ve = id_don_ve;
         this.id_nguoi_dung = id_nguoi_dung;
         this.id_suat_chieu = id_suat_chieu;
@@ -37,8 +37,8 @@ public class DonDatVe implements Serializable {
         this.trang_thai = trang_thai;
     }
 
-    public int getId_don_ve() { return id_don_ve; }
-    public void setId_don_ve(int id_don_ve) { this.id_don_ve = id_don_ve; }
+    public Integer getId_don_ve() { return id_don_ve; }
+    public void setId_don_ve(Integer id_don_ve) { this.id_don_ve = id_don_ve; }
 
     public int getId_nguoi_dung() { return id_nguoi_dung; }
     public void setId_nguoi_dung(int id_nguoi_dung) { this.id_nguoi_dung = id_nguoi_dung; }

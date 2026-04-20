@@ -24,4 +24,7 @@ public interface NguoiDungDao {
 
     @Query("SELECT * FROM NguoiDung WHERE email = :email AND mat_khau = :password")
     NguoiDung login(String email, String password);
+
+    @Query("SELECT * FROM NguoiDung")
+    List<NguoiDung> getAll();
 }

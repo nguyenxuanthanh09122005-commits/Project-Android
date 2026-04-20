@@ -3,12 +3,14 @@ package adapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.movie_booking.R;
+import com.example.movie_booking.dao.SuatChieuDao;
 import com.example.movie_booking.object.SuatChieu;
 
 import java.util.ArrayList;
@@ -16,10 +18,10 @@ import java.util.List;
 import java.util.Map;
 
 public class RapAdapter extends RecyclerView.Adapter<RapAdapter.RapViewHolder> {
-    private List<String> danhSachTenRap;
-    private Map<String, List<SuatChieu>> lichChieuTheoRap;
+    private final List<String> danhSachTenRap;
+    private final Map<String, List<SuatChieuDao.SuatChieuWithTheater>> lichChieuTheoRap;
 
-    public RapAdapter(Map<String, List<SuatChieu>> lichChieuTheoRap) {
+    public RapAdapter(Map<String, List<SuatChieuDao.SuatChieuWithTheater>> lichChieuTheoRap) {
         this.lichChieuTheoRap = lichChieuTheoRap;
         this.danhSachTenRap = new ArrayList<>(lichChieuTheoRap.keySet());
     }
@@ -36,11 +38,36 @@ public class RapAdapter extends RecyclerView.Adapter<RapAdapter.RapViewHolder> {
         String tenRap = danhSachTenRap.get(position);
         holder.tvTenRap.setText(tenRap);
 
-        List<SuatChieu> danhSachSuatChieu = lichChieuTheoRap.get(tenRap);
-        SuatChieuAdapter suatChieuAdapter = new SuatChieuAdapter(danhSachSuatChieu);
+        List<SuatChieuDao.SuatChieuWithTheater> listSC = lichChieuTheoRap.get(tenRap);
         
-        holder.rvDanhSachSuatChieu.setLayoutManager(new GridLayoutManager(holder.itemView.getContext(), 3));
-        holder.rvDanhSachSuatChieu.setAdapter(suatChieuAdapter);
+        if (listSC != null && !listSC.isEmpty()) {
+            holder.tvTenPhong.setText(listSC.get(0).ten_phong);
+            
+            List<SuatChieu> danhSachSuatChieu = new ArrayList<>();
+            for (SuatChieuDao.SuatChieuWithTheater swt : listSC) {
+                danhSachSuatChieu.add(swt.toSuatChieu());
+            }
+            
+            SuatChieuAdapter suatChieuAdapter = new SuatChieuAdapter(danhSachSuatChieu);
+            holder.rvDanhSachSuatChieu.setLayoutManager(new GridLayoutManager(holder.itemView.getContext(), 3));
+            holder.rvDanhSachSuatChieu.setAdapter(suatChieuAdapter);
+
+            View.OnClickListener toggleAction = v -> {
+                if (holder.rvDanhSachSuatChieu.getVisibility() == View.VISIBLE) {
+                    holder.rvDanhSachSuatChieu.setVisibility(View.GONE);
+                    holder.tvTenPhong.setVisibility(View.GONE);
+                    holder.imgArrow.setImageResource(android.R.drawable.arrow_down_float);
+                } else {
+                    holder.rvDanhSachSuatChieu.setVisibility(View.VISIBLE);
+                    holder.tvTenPhong.setVisibility(View.VISIBLE);
+                    holder.imgArrow.setImageResource(android.R.drawable.arrow_up_float);
+                }
+            };
+
+            holder.tvTenRap.setOnClickListener(toggleAction);
+            holder.imgArrow.setOnClickListener(toggleAction);
+            holder.tvTenPhong.setOnClickListener(toggleAction);
+        }
     }
 
     @Override
@@ -48,14 +75,17 @@ public class RapAdapter extends RecyclerView.Adapter<RapAdapter.RapViewHolder> {
         return danhSachTenRap.size();
     }
 
-    class RapViewHolder extends RecyclerView.ViewHolder {
-        TextView tvTenRap;
+    static class RapViewHolder extends RecyclerView.ViewHolder {
+        TextView tvTenRap, tvTenPhong;
         RecyclerView rvDanhSachSuatChieu;
+        ImageView imgArrow;
 
         public RapViewHolder(@NonNull View itemView) {
             super(itemView);
             tvTenRap = itemView.findViewById(R.id.tvTenRap);
+            tvTenPhong = itemView.findViewById(R.id.tvTenPhong);
             rvDanhSachSuatChieu = itemView.findViewById(R.id.rvDanhSachSuatChieu);
+            imgArrow = itemView.findViewById(R.id.imgArrow);
         }
     }
 }

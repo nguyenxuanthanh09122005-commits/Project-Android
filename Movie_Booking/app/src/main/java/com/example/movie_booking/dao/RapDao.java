@@ -21,4 +21,7 @@ public interface RapDao {
 
     @Query("SELECT * FROM Rap")
     List<Rap> getAllRap();
+
+    @Query("SELECT DISTINCT thanh_pho FROM Rap")
+    List<String> getAllThanhPho();
 }
