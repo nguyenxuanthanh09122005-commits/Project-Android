@@ -30,7 +30,7 @@ public class SuatChieu implements Serializable {
 
     public SuatChieu() {}
 
-    public SuatChieu(int id_suat_chieu, int id_phim, int id_phong, String thoi_gian_bat_dau, String thoi_gian_ket_thuc, double gia_ve_co_ban) {
+    public SuatChieu(Integer id_suat_chieu, int id_phim, int id_phong, String thoi_gian_bat_dau, String thoi_gian_ket_thuc, double gia_ve_co_ban) {
         this.id_suat_chieu = id_suat_chieu;
         this.id_phim = id_phim;
         this.id_phong = id_phong;
@@ -39,8 +39,8 @@ public class SuatChieu implements Serializable {
         this.gia_ve_co_ban = gia_ve_co_ban;
     }
 
-    public int getId_suat_chieu() { return id_suat_chieu; }
-    public void setId_suat_chieu(int id_suat_chieu) { this.id_suat_chieu = id_suat_chieu; }
+    public Integer getId_suat_chieu() { return id_suat_chieu; }
+    public void setId_suat_chieu(Integer id_suat_chieu) { this.id_suat_chieu = id_suat_chieu; }
 
     public int getId_phim() { return id_phim; }
     public void setId_phim(int id_phim) { this.id_phim = id_phim; }

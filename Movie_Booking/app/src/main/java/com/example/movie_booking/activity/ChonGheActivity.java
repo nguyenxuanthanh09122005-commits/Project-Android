@@ -9,21 +9,20 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.movie_booking.R;
-import com.example.movie_booking.database.AppDatabase;
 import com.example.movie_booking.object.Ghe;
-import com.example.movie_booking.object.Phim;
 import com.example.movie_booking.object.SuatChieu;
+import com.example.movie_booking.viewmodel.GheViewModel;
+import com.example.movie_booking.viewmodel.PhimViewModel;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import adapter.GheAdapter;
 
@@ -33,32 +32,29 @@ public class ChonGheActivity extends AppCompatActivity {
     private TextView tvGheDaChon, tvTongTien;
     private Button btnTiepTuc;
     private ImageView btnBack;
-    private AppDatabase db;
     private SuatChieu suatChieu;
     private GheAdapter gheAdapter;
     private DecimalFormat formatter = new DecimalFormat("###,###,###");
     private double currentTongTien = 0;
     private String doTuoiQuyDinh = "P";
-    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    
+    private GheViewModel gheViewModel;
+    private PhimViewModel phimViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chon_ghe);
 
-        db = AppDatabase.getInstance(this);
         suatChieu = (SuatChieu) getIntent().getSerializableExtra("suat_chieu_data");
 
         khoiTaoGiaoDien();
-        
-        if (suatChieu != null) {
-            taiDanhSachGhe(suatChieu.getId_phong(), suatChieu.getId_suat_chieu());
-            layThongTinDoTuoiPhim(suatChieu.getId_phim());
-        }
+        thietLapViewModel();
 
         btnBack.setOnClickListener(v -> finish());
         
         btnTiepTuc.setOnClickListener(v -> {
+            if (gheAdapter == null) return;
             List<Ghe> selectedGhes = gheAdapter.getSelectedGhes();
             if (selectedGhes.isEmpty()) {
                 Toast.makeText(this, "Vui lòng chọn ghế!", Toast.LENGTH_SHORT).show();
@@ -68,11 +64,43 @@ public class ChonGheActivity extends AppCompatActivity {
         });
     }
 
-    private void layThongTinDoTuoiPhim(int idPhim) {
-        executorService.execute(() -> {
-            Phim phim = db.phimDao().getPhimById(idPhim);
-            if (phim != null) {
-                doTuoiQuyDinh = phim.getDo_tuoi_quy_dinh();
+    private void thietLapViewModel() {
+        gheViewModel = new ViewModelProvider(this).get(GheViewModel.class);
+        phimViewModel = new ViewModelProvider(this).get(PhimViewModel.class);
+
+        if (suatChieu != null) {
+            // Lấy độ tuổi quy định của phim
+            phimViewModel.getAllPhims().observe(this, phims -> {
+                if (phims != null) {
+                    for (com.example.movie_booking.object.Phim p : phims) {
+                        if (p.getId_phim() == suatChieu.getId_phim()) {
+                            doTuoiQuyDinh = p.getDo_tuoi_quy_dinh();
+                            break;
+                        }
+                    }
+                }
+            });
+
+            taiDuLieuGhe();
+        }
+    }
+
+    private void taiDuLieuGhe() {
+        gheViewModel.getGheByPhong(suatChieu.getId_phong()).observe(this, tatCaGhe -> {
+            if (tatCaGhe != null) {
+                gheViewModel.getGheDaDat(suatChieu.getId_suat_chieu()).observe(this, gheDaDat -> {
+                    List<Integer> bookedIds = new ArrayList<>();
+                    if (gheDaDat != null) {
+                        for (Ghe g : gheDaDat) {
+                            bookedIds.add(g.getId_ghe());
+                        }
+                    }
+                    
+                    gheAdapter = new GheAdapter(tatCaGhe, bookedIds, selectedGhes -> {
+                        capNhatThongTin(selectedGhes);
+                    });
+                    rvGhe.setAdapter(gheAdapter);
+                });
             }
         });
     }
@@ -97,14 +125,12 @@ public class ChonGheActivity extends AppCompatActivity {
             return;
         }
 
-        // Tạo giao diện DatePickerDialog đẹp hơn với Holo Light hoặc Theme mặc định của hệ thống
         Calendar calendar = Calendar.getInstance();
         int finalRequiredAge = requiredAge;
         
-        // Sử dụng style Theme_Holo_Light_Dialog_MinWidth hoặc để hệ thống tự chọn bản hiện đại nhất
         DatePickerDialog datePickerDialog = new DatePickerDialog(
                 this, 
-                AlertDialog.THEME_HOLO_LIGHT, // Tạo giao diện kiểu vòng xoay (spinner) dễ nhìn hơn
+                AlertDialog.THEME_HOLO_LIGHT,
                 (view, year, month, dayOfMonth) -> {
                     Calendar birthDate = Calendar.getInstance();
                     birthDate.set(year, month, dayOfMonth);
@@ -124,13 +150,12 @@ public class ChonGheActivity extends AppCompatActivity {
                         finish();
                     }
                 }, 
-                calendar.get(Calendar.YEAR) - finalRequiredAge, // Mặc định nhảy tới năm vừa đủ tuổi
+                calendar.get(Calendar.YEAR) - finalRequiredAge,
                 calendar.get(Calendar.MONTH), 
                 calendar.get(Calendar.DAY_OF_MONTH)
         );
         
         datePickerDialog.setTitle("Xác nhận ngày sinh (Phim " + doTuoiQuyDinh + ")");
-        // Giới hạn không cho chọn ngày ở tương lai
         datePickerDialog.getDatePicker().setMaxDate(System.currentTimeMillis());
         datePickerDialog.show();
     }
@@ -151,25 +176,6 @@ public class ChonGheActivity extends AppCompatActivity {
         btnBack = findViewById(R.id.btnBack);
 
         rvGhe.setLayoutManager(new GridLayoutManager(this, 8));
-    }
-
-    private void taiDanhSachGhe(int idPhong, int idSuatChieu) {
-        executorService.execute(() -> {
-            List<Ghe> listGhe = db.gheDao().getGheByPhong(idPhong);
-            List<Ghe> listGheDaDat = db.gheDao().getGheDaDat(idSuatChieu);
-            
-            List<Integer> bookedIds = new ArrayList<>();
-            for (Ghe g : listGheDaDat) {
-                bookedIds.add(g.getId_ghe());
-            }
-            
-            runOnUiThread(() -> {
-                gheAdapter = new GheAdapter(listGhe, bookedIds, selectedGhes -> {
-                    capNhatThongTin(selectedGhes);
-                });
-                rvGhe.setAdapter(gheAdapter);
-            });
-        });
     }
 
     private void capNhatThongTin(List<Ghe> selectedGhes) {
@@ -199,19 +205,5 @@ public class ChonGheActivity extends AppCompatActivity {
         currentTongTien = tongTien;
         tvGheDaChon.setText(sb.toString());
         tvTongTien.setText("Tổng: " + formatter.format(tongTien) + "đ");
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (suatChieu != null) {
-            taiDanhSachGhe(suatChieu.getId_phong(), suatChieu.getId_suat_chieu());
-        }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        executorService.shutdown();
     }
 }

@@ -9,17 +9,24 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 import com.bumptech.glide.Glide;
 import com.example.movie_booking.R;
-import com.example.movie_booking.database.AppDatabase;
 import com.example.movie_booking.object.ChiTietVe;
 import com.example.movie_booking.object.DonDatVe;
 import com.example.movie_booking.object.Ghe;
 import com.example.movie_booking.object.NguoiDung;
 import com.example.movie_booking.object.SuatChieu;
+import com.example.movie_booking.repository.DonDatVeRepository;
+import com.example.movie_booking.viewmodel.DonDatVeViewModel;
+import com.example.movie_booking.viewmodel.NguoiDungViewModel;
+import com.example.movie_booking.viewmodel.PhimViewModel;
+import com.example.movie_booking.viewmodel.PhongChieuViewModel;
+import com.example.movie_booking.viewmodel.SuatChieuViewModel;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -42,12 +49,16 @@ public class ThanhToanActivity extends AppCompatActivity {
     private CountDownTimer countDownTimer;
     private DecimalFormat formatter = new DecimalFormat("###,###,###");
     
-    private AppDatabase db;
     private SuatChieu suatChieu;
     private List<Ghe> selectedGhes;
     private double tongTien;
 
-    // Cấu hình Email gửi đi
+    private DonDatVeViewModel donDatVeViewModel;
+    private NguoiDungViewModel nguoiDungViewModel;
+    private PhimViewModel phimViewModel;
+    private SuatChieuViewModel suatChieuViewModel;
+    private PhongChieuViewModel phongChieuViewModel;
+
     private final String EMAIL_GUI = "lethu1011xx@gmail.com";
     private final String MAT_KHAU_APP = "mrxh tbqr rhlk slve";
 
@@ -56,12 +67,20 @@ public class ThanhToanActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_thanh_toan);
 
-        db = AppDatabase.getInstance(this);
-        
         tongTien = getIntent().getDoubleExtra("tong_tien", 0);
         suatChieu = (SuatChieu) getIntent().getSerializableExtra("suat_chieu_data");
         selectedGhes = (List<Ghe>) getIntent().getSerializableExtra("selected_ghes");
 
+        khoiTaoGiaoDien();
+        thietLapViewModel();
+        
+        startCountdown();
+
+        btnBack.setOnClickListener(v -> finish());
+        btnXacNhan.setOnClickListener(v -> xuLyThanhToan());
+    }
+
+    private void khoiTaoGiaoDien() {
         tvTimer = findViewById(R.id.tvTimer);
         tvSoTien = findViewById(R.id.tvSoTien);
         imgQRCode = findViewById(R.id.imgQRCode);
@@ -74,11 +93,14 @@ public class ThanhToanActivity extends AppCompatActivity {
                 + (int)tongTien + "&addInfo=ThanhToanVePhim";
         
         Glide.with(this).load(qrUrl).into(imgQRCode);
+    }
 
-        startCountdown();
-
-        btnBack.setOnClickListener(v -> finish());
-        btnXacNhan.setOnClickListener(v -> xuLyThanhToan());
+    private void thietLapViewModel() {
+        donDatVeViewModel = new ViewModelProvider(this).get(DonDatVeViewModel.class);
+        nguoiDungViewModel = new ViewModelProvider(this).get(NguoiDungViewModel.class);
+        phimViewModel = new ViewModelProvider(this).get(PhimViewModel.class);
+        suatChieuViewModel = new ViewModelProvider(this).get(SuatChieuViewModel.class);
+        phongChieuViewModel = new ViewModelProvider(this).get(PhongChieuViewModel.class);
     }
 
     private void xuLyThanhToan() {
@@ -87,60 +109,77 @@ public class ThanhToanActivity extends AppCompatActivity {
             return;
         }
 
-        new Thread(() -> {
-            try {
-                List<NguoiDung> users = db.nguoiDungDao().getAll();
-                if (users == null || users.isEmpty()) {
-                    runOnUiThread(() -> Toast.makeText(this, "Lỗi: Không tìm thấy người dùng!", Toast.LENGTH_LONG).show());
-                    return;
-                }
-                NguoiDung currentUser = users.get(0); 
-
-                final long[] finalIdDonHang = new long[1];
-                db.runInTransaction(() -> {
-                    DonDatVe donHang = new DonDatVe();
-                    donHang.setId_nguoi_dung(currentUser.getId_nguoi_dung()); 
-                    donHang.setId_suat_chieu(suatChieu.getId_suat_chieu());
-                    donHang.setTong_tien(tongTien);
-                    donHang.setNgay_dat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date()));
-                    donHang.setTrang_thai("DaThanhToan");
-
-                    finalIdDonHang[0] = db.donDatVeDao().insert(donHang);
-                    
-                    double giaCoBan = suatChieu.getGia_ve_co_ban();
-                    for (Ghe g : selectedGhes) {
-                        double giaMua = "VIP".equalsIgnoreCase(g.getLoai_ghe()) ? (giaCoBan + 10000) : giaCoBan;
-                        ChiTietVe ct = new ChiTietVe((int)finalIdDonHang[0], g.getId_ghe(), giaMua);
-                        db.chiTietVeDao().insert(ct);
-                    }
-                });
-
-                String tenPhim = db.phimDao().getPhimById(suatChieu.getId_phim()).getTen_phim();
-                String tenRap = db.suatChieuDao().getTenRapBySuatChieu(suatChieu.getId_suat_chieu());
-                String tenPhong = db.phongChieuDao().getPhongById(suatChieu.getId_phong()).getTen_phong();
-                
-                StringBuilder gheNames = new StringBuilder();
-                for (int i = 0; i < selectedGhes.size(); i++) {
-                    gheNames.append(selectedGhes.get(i).getHang_ghe()).append(selectedGhes.get(i).getSo_ghe());
-                    if (i < selectedGhes.size() - 1) gheNames.append(", ");
-                }
-
-                // Gửi email xác nhận kèm mã QR vé
-                guiEmailXacNhan(currentUser.getEmail(), tenPhim, tenRap, tenPhong, gheNames.toString(), finalIdDonHang[0]);
-
-                runOnUiThread(() -> {
-                    Toast.makeText(this, "Thanh toán thành công! Vé đã được gửi về email.", Toast.LENGTH_LONG).show();
-                    Intent intent = new Intent(this, TrangChuActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(intent);
-                    finish();
-                });
-
-            } catch (Exception e) {
-                Log.e("ThanhToanError", "Lỗi xử lý thanh toán", e);
-                runOnUiThread(() -> Toast.makeText(this, "Lỗi: " + e.getMessage(), Toast.LENGTH_LONG).show());
+        nguoiDungViewModel.getAllUsers().observe(this, users -> {
+            if (users == null || users.isEmpty()) {
+                Toast.makeText(this, "Lỗi: Không tìm thấy người dùng!", Toast.LENGTH_LONG).show();
+                return;
             }
-        }).start();
+            NguoiDung currentUser = users.get(0);
+
+            DonDatVe donHang = new DonDatVe();
+            donHang.setId_nguoi_dung(currentUser.getId_nguoi_dung());
+            donHang.setId_suat_chieu(suatChieu.getId_suat_chieu());
+            donHang.setTong_tien(tongTien);
+            donHang.setNgay_dat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date()));
+            donHang.setTrang_thai("DaThanhToan");
+
+            List<ChiTietVe> danhSachChiTiet = new ArrayList<>();
+            double giaCoBan = suatChieu.getGia_ve_co_ban();
+            for (Ghe g : selectedGhes) {
+                double giaMua = "VIP".equalsIgnoreCase(g.getLoai_ghe()) ? (giaCoBan + 10000) : giaCoBan;
+                danhSachChiTiet.add(new ChiTietVe(0, g.getId_ghe(), giaMua));
+            }
+
+            donDatVeViewModel.datVe(donHang, danhSachChiTiet, new DonDatVeRepository.OnBookingCompleteListener() {
+                @Override
+                public void onComplete(long idDonHang) {
+                    runOnUiThread(() -> layThongTinVaGuiEmail(currentUser, idDonHang));
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    runOnUiThread(() -> Toast.makeText(ThanhToanActivity.this, "Lỗi thanh toán: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                }
+            });
+        });
+    }
+
+    private void layThongTinVaGuiEmail(NguoiDung user, long idDonHang) {
+        // Lấy thông tin bổ sung để gửi email (Phim, Rạp, Phòng)
+        phimViewModel.getAllPhims().observe(this, phims -> {
+            String tenPhim = "";
+            for (com.example.movie_booking.object.Phim p : phims) {
+                if (p.getId_phim() == suatChieu.getId_phim()) {
+                    tenPhim = p.getTen_phim();
+                    break;
+                }
+            }
+            final String finalTenPhim = tenPhim;
+
+            suatChieuViewModel.getTenRapBySuatChieu(suatChieu.getId_suat_chieu()).observe(this, tenRap -> {
+                phongChieuViewModel.getPhongById(suatChieu.getId_phong()).observe(this, phong -> {
+                    String tenPhong = (phong != null) ? phong.getTen_phong() : "N/A";
+                    
+                    StringBuilder gheNames = new StringBuilder();
+                    for (int i = 0; i < selectedGhes.size(); i++) {
+                        gheNames.append(selectedGhes.get(i).getHang_ghe()).append(selectedGhes.get(i).getSo_ghe());
+                        if (i < selectedGhes.size() - 1) gheNames.append(", ");
+                    }
+
+                    String finalTenPhong = tenPhong;
+                    new Thread(() -> {
+                        guiEmailXacNhan(user.getEmail(), finalTenPhim, tenRap, finalTenPhong, gheNames.toString(), idDonHang);
+                        runOnUiThread(() -> {
+                            Toast.makeText(this, "Thanh toán thành công! Vé đã gửi về email.", Toast.LENGTH_LONG).show();
+                            Intent intent = new Intent(this, TrangChuActivity.class);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(intent);
+                            finish();
+                        });
+                    }).start();
+                });
+            });
+        });
     }
 
     private void guiEmailXacNhan(String emailNhan, String tenPhim, String tenRap, String tenPhong, String viTriGhe, long idDonHang) {
@@ -164,10 +203,8 @@ public class ThanhToanActivity extends AppCompatActivity {
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(emailNhan));
             message.setSubject("VÉ XEM PHIM ĐIỆN TỬ - " + tenPhim.toUpperCase());
 
-            // Tạo link mã QR dựa trên mã đơn hàng
             String qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=MOVIE_TICKET_" + idDonHang;
 
-            // Nội dung Email dạng HTML
             String htmlContent = "<html><body style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>" +
                     "<div style='max-width: 600px; margin: auto; border: 1px solid #ddd; padding: 20px; border-radius: 10px;'>" +
                     "<h2 style='color: #e50914; text-align: center;'>XÁC NHẬN ĐẶT VÉ THÀNH CÔNG</h2>" +
@@ -191,9 +228,7 @@ public class ThanhToanActivity extends AppCompatActivity {
                     "</body></html>";
 
             message.setContent(htmlContent, "text/html; charset=utf-8");
-            
             Transport.send(message);
-            Log.d("EmailSuccess", "Mail HTML kèm mã QR đã được gửi tới: " + emailNhan);
         } catch (MessagingException e) {
             Log.e("EmailError", "Lỗi gửi mail: " + e.getMessage());
         }

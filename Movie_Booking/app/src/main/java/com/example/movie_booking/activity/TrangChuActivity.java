@@ -1,14 +1,15 @@
 package com.example.movie_booking.activity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.ImageView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -16,31 +17,29 @@ import androidx.core.graphics.Insets;
 import androidx.core.splashscreen.SplashScreen;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.movie_booking.R;
-import com.example.movie_booking.database.AppDatabase;
 import com.example.movie_booking.object.Phim;
+import com.example.movie_booking.viewmodel.PhimViewModel;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import adapter.PhimAdapter;
 
 public class TrangChuActivity extends AppCompatActivity {
 
-    private AppDatabase db;
     private RecyclerView rvDangChieu, rvSapChieu, rvPhimHot;
     private PhimAdapter adapterDangChieu, adapterSapChieu, adapterPhimHot;
     private EditText etSearch;
+    private ImageView navGrid;
     private List<Phim> allPhimList = new ArrayList<>();
-    private static final String TAG = "TrangChuActivity";
-    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private PhimViewModel phimViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,11 +55,14 @@ public class TrangChuActivity extends AppCompatActivity {
             return insets;
         });
 
-        db = AppDatabase.getInstance(this);
         khoiTaoGiaoDien();
-        taiDuLieuPhim();
+        thietLapViewModel();
         thietLapTimKiem();
         thietLapAnBanPhim();
+        
+        navGrid.setOnClickListener(v -> {
+            startActivity(new Intent(this, QuanLyPhimActivity.class));
+        });
     }
 
     private void khoiTaoGiaoDien() {
@@ -68,6 +70,7 @@ public class TrangChuActivity extends AppCompatActivity {
         rvSapChieu = findViewById(R.id.rvSapChieu);
         rvPhimHot = findViewById(R.id.rvPhimHot);
         etSearch = findViewById(R.id.etSearch);
+        navGrid = findViewById(R.id.navGrid);
 
         adapterDangChieu = new PhimAdapter(new ArrayList<>());
         adapterSapChieu = new PhimAdapter(new ArrayList<>());
@@ -85,19 +88,12 @@ public class TrangChuActivity extends AppCompatActivity {
         }
     }
 
-    private void taiDuLieuPhim() {
-        executorService.execute(() -> {
-            try {
-                List<Phim> tatCaPhim = db.phimDao().getAllPhim();
-
-                if (tatCaPhim == null || tatCaPhim.isEmpty()) {
-                    Log.w(TAG, "Database rỗng hoặc không tải được.");
-                } else {
-                    allPhimList = tatCaPhim;
-                    hienThiPhim(allPhimList);
-                }
-            } catch (Exception e) {
-                Log.e(TAG, "Lỗi khi tải dữ liệu phim: ", e);
+    private void thietLapViewModel() {
+        phimViewModel = new ViewModelProvider(this).get(PhimViewModel.class);
+        phimViewModel.getAllPhims().observe(this, phims -> {
+            if (phims != null) {
+                allPhimList = phims;
+                hienThiPhim(allPhimList);
             }
         });
     }
@@ -117,16 +113,13 @@ public class TrangChuActivity extends AppCompatActivity {
             }
         }
 
-        // Top 3 phim Đang chiếu thời lượng dài nhất
         List<Phim> phimHotTemp = new ArrayList<>(dangChieu);
         Collections.sort(phimHotTemp, (p1, p2) -> p2.getThoi_luong() - p1.getThoi_luong());
         List<Phim> phimHotFinal = (phimHotTemp.size() > 3) ? new ArrayList<>(phimHotTemp.subList(0, 3)) : phimHotTemp;
 
-        runOnUiThread(() -> {
-            adapterDangChieu.updateData(dangChieu);
-            adapterSapChieu.updateData(sapChieu);
-            adapterPhimHot.updateData(phimHotFinal);
-        });
+        adapterDangChieu.updateData(dangChieu);
+        adapterSapChieu.updateData(sapChieu);
+        adapterPhimHot.updateData(phimHotFinal);
     }
 
     private void thietLapTimKiem() {
@@ -178,7 +171,6 @@ public class TrangChuActivity extends AppCompatActivity {
             }
         });
 
-        // Áp dụng cho cả NestedScrollView để khi cuộn cũng ẩn bàn phím
         findViewById(R.id.scrollView).setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -195,11 +187,5 @@ public class TrangChuActivity extends AppCompatActivity {
                 return false;
             }
         });
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        executorService.shutdown();
     }
 }

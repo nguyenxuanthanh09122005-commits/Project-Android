@@ -37,6 +37,10 @@
         <activity
             android:name=".activity.ThanhToanActivity"
             android:exported="false" />
+        <activity
+            android:name=".activity.QuanLyPhimActivity"
+            android:exported="false"
+            android:label="Quản lý phim" />
     </application>
 
 </manifest>

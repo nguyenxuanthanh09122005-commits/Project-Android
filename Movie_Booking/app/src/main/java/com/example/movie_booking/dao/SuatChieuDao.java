@@ -22,6 +22,9 @@ public interface SuatChieuDao {
     @Query("SELECT * FROM SuatChieu WHERE id_phim = :idPhim")
     List<SuatChieu> getSuatChieuByPhim(int idPhim);
 
+    @Query("SELECT COUNT(*) FROM SuatChieu WHERE id_phim = :idPhim AND thoi_gian_bat_dau >= :currentTime")
+    int countFutureShowtimes(int idPhim, String currentTime);
+
     @Query("SELECT r.ten_rap FROM SuatChieu s " +
            "JOIN PhongChieu p ON s.id_phong = p.id_phong " +
            "JOIN Rap r ON p.id_rap = r.id_rap " +

@@ -42,7 +42,7 @@ public class Phim implements Serializable {
 
     public Phim() {}
 
-    public Phim(int id_phim, @NonNull String ten_phim, String mo_ta, int thoi_luong, String ngay_khoi_chieu, String anh_poster, String trailer_url, String the_loai, String do_tuoi_quy_dinh) {
+    public Phim(Integer id_phim, @NonNull String ten_phim, String mo_ta, int thoi_luong, String ngay_khoi_chieu, String anh_poster, String trailer_url, String the_loai, String do_tuoi_quy_dinh) {
         this.id_phim = id_phim;
         this.ten_phim = ten_phim;
         this.mo_ta = mo_ta;
@@ -65,8 +65,8 @@ public class Phim implements Serializable {
         return null;
     }
 
-    public int getId_phim() { return id_phim; }
-    public void setId_phim(int id_phim) { this.id_phim = id_phim; }
+    public Integer getId_phim() { return id_phim; }
+    public void setId_phim(Integer id_phim) { this.id_phim = id_phim; }
 
     @NonNull
     public String getTen_phim() { return ten_phim; }

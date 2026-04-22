@@ -1,5 +1,6 @@
 package com.example.movie_booking.dao;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -20,7 +21,10 @@ public interface PhimDao {
     void delete(Phim phim);
 
     @Query("SELECT * FROM Phim")
-    List<Phim> getAllPhim();
+    LiveData<List<Phim>> getAllPhim();
+
+    @Query("SELECT * FROM Phim")
+    List<Phim> getAllPhimSync();
 
     @Query("SELECT * FROM Phim WHERE id_phim = :id")
     Phim getPhimById(int id);
