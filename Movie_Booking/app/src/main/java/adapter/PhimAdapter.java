@@ -1,17 +1,16 @@
 package adapter;
 
 import android.content.Context;
-import android.content.Intent;
-import android.util.Log;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.movie_booking.activity.DatVeActivity;
 import com.example.movie_booking.object.Phim;
 import com.example.movie_booking.R;
 
@@ -63,9 +62,10 @@ public class PhimAdapter extends RecyclerView.Adapter<PhimAdapter.PhimViewHolder
         }
 
         holder.itemView.setOnClickListener(v -> {
-            Intent intent = new Intent(holder.itemView.getContext(), DatVeActivity.class);
-            intent.putExtra("movie_data", phim);
-            holder.itemView.getContext().startActivity(intent);
+            // Chuyển sang màn hình Đặt vé (fragment_dat_ve) thay vì Chi tiết phim
+            Bundle bundle = new Bundle();
+            bundle.putSerializable("movie_data", phim);
+            Navigation.findNavController(v).navigate(R.id.action_homeFragment_to_datVeFragment, bundle);
         });
     }
 

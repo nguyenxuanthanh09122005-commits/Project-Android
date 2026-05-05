@@ -1,15 +1,23 @@
-package com.example.movie_booking.activity;
+package com.example.movie_booking.fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-import androidx.appcompat.app.AppCompatActivity;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.Navigation;
+
 import com.bumptech.glide.Glide;
 import com.example.movie_booking.R;
 import com.example.movie_booking.object.ChiTietVe;
@@ -27,6 +35,7 @@ import com.example.movie_booking.viewmodel.SuatChieuViewModel;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -41,14 +50,14 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-public class ThanhToanActivity extends AppCompatActivity {
+public class ThanhToanFragment extends Fragment {
 
     private TextView tvTimer, tvSoTien;
     private ImageView imgQRCode, btnBack;
     private Button btnXacNhan;
     private CountDownTimer countDownTimer;
     private DecimalFormat formatter = new DecimalFormat("###,###,###");
-    
+
     private SuatChieu suatChieu;
     private List<Ghe> selectedGhes;
     private double tongTien;
@@ -62,36 +71,45 @@ public class ThanhToanActivity extends AppCompatActivity {
     private final String EMAIL_GUI = "lethu1011xx@gmail.com";
     private final String MAT_KHAU_APP = "mrxh tbqr rhlk slve";
 
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_thanh_toan);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_thanh_toan, container, false);
+    }
 
-        tongTien = getIntent().getDoubleExtra("tong_tien", 0);
-        suatChieu = (SuatChieu) getIntent().getSerializableExtra("suat_chieu_data");
-        selectedGhes = (List<Ghe>) getIntent().getSerializableExtra("selected_ghes");
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
-        khoiTaoGiaoDien();
+        if (getArguments() != null) {
+            tongTien = getArguments().getFloat("tong_tien");
+            suatChieu = (SuatChieu) getArguments().getSerializable("suat_chieu_data");
+            Ghe[] ghesArray = (Ghe[]) getArguments().getSerializable("selected_ghes");
+            if (ghesArray != null) {
+                selectedGhes = Arrays.asList(ghesArray);
+            }
+        }
+
+        khoiTaoGiaoDien(view);
         thietLapViewModel();
-        
         startCountdown();
 
-        btnBack.setOnClickListener(v -> finish());
+        btnBack.setOnClickListener(v -> Navigation.findNavController(v).navigateUp());
         btnXacNhan.setOnClickListener(v -> xuLyThanhToan());
     }
 
-    private void khoiTaoGiaoDien() {
-        tvTimer = findViewById(R.id.tvTimer);
-        tvSoTien = findViewById(R.id.tvSoTien);
-        imgQRCode = findViewById(R.id.imgQRCode);
-        btnXacNhan = findViewById(R.id.btnXacNhan);
-        btnBack = findViewById(R.id.btnBack);
+    private void khoiTaoGiaoDien(View view) {
+        tvTimer = view.findViewById(R.id.tvTimer);
+        tvSoTien = view.findViewById(R.id.tvSoTien);
+        imgQRCode = view.findViewById(R.id.imgQRCode);
+        btnXacNhan = view.findViewById(R.id.btnXacNhan);
+        btnBack = view.findViewById(R.id.btnBack);
 
         tvSoTien.setText("Số tiền: " + formatter.format(tongTien) + "đ");
 
-        String qrUrl = "https://img.vietqr.io/image/970422-123456789-compact.png?amount=" 
-                + (int)tongTien + "&addInfo=ThanhToanVePhim";
-        
+        String qrUrl = "https://img.vietqr.io/image/970422-123456789-compact.png?amount="
+                + (int) tongTien + "&addInfo=ThanhToanVePhim";
+
         Glide.with(this).load(qrUrl).into(imgQRCode);
     }
 
@@ -105,13 +123,13 @@ public class ThanhToanActivity extends AppCompatActivity {
 
     private void xuLyThanhToan() {
         if (suatChieu == null || selectedGhes == null || selectedGhes.isEmpty()) {
-            Toast.makeText(this, "Lỗi dữ liệu thanh toán!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Lỗi dữ liệu thanh toán!", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        nguoiDungViewModel.getAllUsers().observe(this, users -> {
+        nguoiDungViewModel.getAllUsers().observe(getViewLifecycleOwner(), users -> {
             if (users == null || users.isEmpty()) {
-                Toast.makeText(this, "Lỗi: Không tìm thấy người dùng!", Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), "Lỗi: Không tìm thấy người dùng!", Toast.LENGTH_LONG).show();
                 return;
             }
             NguoiDung currentUser = users.get(0);
@@ -133,33 +151,36 @@ public class ThanhToanActivity extends AppCompatActivity {
             donDatVeViewModel.datVe(donHang, danhSachChiTiet, new DonDatVeRepository.OnBookingCompleteListener() {
                 @Override
                 public void onComplete(long idDonHang) {
-                    runOnUiThread(() -> layThongTinVaGuiEmail(currentUser, idDonHang));
+                    if (isAdded()) {
+                        requireActivity().runOnUiThread(() -> layThongTinVaGuiEmail(currentUser, idDonHang));
+                    }
                 }
 
                 @Override
                 public void onError(Exception e) {
-                    runOnUiThread(() -> Toast.makeText(ThanhToanActivity.this, "Lỗi thanh toán: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                    if (isAdded()) {
+                        requireActivity().runOnUiThread(() -> Toast.makeText(getContext(), "Lỗi thanh toán: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                    }
                 }
             });
         });
     }
 
     private void layThongTinVaGuiEmail(NguoiDung user, long idDonHang) {
-        // Lấy thông tin bổ sung để gửi email (Phim, Rạp, Phòng)
-        phimViewModel.getAllPhims().observe(this, phims -> {
+        phimViewModel.getAllPhims().observe(getViewLifecycleOwner(), phims -> {
             String tenPhim = "";
             for (com.example.movie_booking.object.Phim p : phims) {
-                if (p.getId_phim() == suatChieu.getId_phim()) {
+                if (p.getId_phim() != null && p.getId_phim() == suatChieu.getId_phim()) {
                     tenPhim = p.getTen_phim();
                     break;
                 }
             }
             final String finalTenPhim = tenPhim;
 
-            suatChieuViewModel.getTenRapBySuatChieu(suatChieu.getId_suat_chieu()).observe(this, tenRap -> {
-                phongChieuViewModel.getPhongById(suatChieu.getId_phong()).observe(this, phong -> {
+            suatChieuViewModel.getTenRapBySuatChieu(suatChieu.getId_suat_chieu()).observe(getViewLifecycleOwner(), tenRap -> {
+                phongChieuViewModel.getPhongById(suatChieu.getId_phong()).observe(getViewLifecycleOwner(), phong -> {
                     String tenPhong = (phong != null) ? phong.getTen_phong() : "N/A";
-                    
+
                     StringBuilder gheNames = new StringBuilder();
                     for (int i = 0; i < selectedGhes.size(); i++) {
                         gheNames.append(selectedGhes.get(i).getHang_ghe()).append(selectedGhes.get(i).getSo_ghe());
@@ -169,13 +190,12 @@ public class ThanhToanActivity extends AppCompatActivity {
                     String finalTenPhong = tenPhong;
                     new Thread(() -> {
                         guiEmailXacNhan(user.getEmail(), finalTenPhim, tenRap, finalTenPhong, gheNames.toString(), idDonHang);
-                        runOnUiThread(() -> {
-                            Toast.makeText(this, "Thanh toán thành công! Vé đã gửi về email.", Toast.LENGTH_LONG).show();
-                            Intent intent = new Intent(this, TrangChuActivity.class);
-                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                            startActivity(intent);
-                            finish();
-                        });
+                        if (isAdded()) {
+                            requireActivity().runOnUiThread(() -> {
+                                Toast.makeText(getContext(), "Thanh toán thành công! Vé đã gửi về email.", Toast.LENGTH_LONG).show();
+                                Navigation.findNavController(requireView()).popBackStack(R.id.homeFragment, false);
+                            });
+                        }
                     }).start();
                 });
             });
@@ -240,18 +260,23 @@ public class ThanhToanActivity extends AppCompatActivity {
             public void onTick(long millisUntilFinished) {
                 int minutes = (int) (millisUntilFinished / 1000) / 60;
                 int seconds = (int) (millisUntilFinished / 1000) % 60;
-                tvTimer.setText(String.format("%02d:%02d", minutes, seconds));
+                if (isAdded()) {
+                    tvTimer.setText(String.format("%02d:%02d", minutes, seconds));
+                }
             }
+
             @Override
             public void onFinish() {
-                finish();
+                if (isAdded()) {
+                    Navigation.findNavController(requireView()).navigateUp();
+                }
             }
         }.start();
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    public void onDestroyView() {
+        super.onDestroyView();
         if (countDownTimer != null) countDownTimer.cancel();
     }
 }

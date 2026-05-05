@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/homeFragment">
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.example.movie_booking.fragment.HomeFragment"
+        android:label="Trang Chủ"
+        tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/action_homeFragment_to_datVeFragment"
+            app:destination="@id/datVeFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_chiTietPhimFragment"
+            app:destination="@id/chiTietPhimFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/locationFragment"
+        android:name="com.example.movie_booking.fragment.LocationFragment"
+        android:label="Rạp Chiếu"
+        tools:layout="@layout/fragment_location" />
+
+    <fragment
+        android:id="@+id/ticketFragment"
+        android:name="com.example.movie_booking.fragment.TicketFragment"
+        android:label="Vé Của Tôi"
+        tools:layout="@layout/fragment_ticket" />
+
+    <fragment
+        android:id="@+id/managementFragment"
+        android:name="com.example.movie_booking.fragment.ManagementFragment"
+        android:label="Quản Lý"
+        tools:layout="@layout/fragment_management">
+        <action
+            android:id="@+id/action_managementFragment_to_quanLyPhimFragment"
+            app:destination="@id/quanLyPhimFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.example.movie_booking.fragment.ProfileFragment"
+        android:label="Cá Nhân"
+        tools:layout="@layout/fragment_profile">
+        <action
+            android:id="@+id/action_profileFragment_to_quanLyPhimFragment"
+            app:destination="@id/quanLyPhimFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/chiTietPhimFragment"
+        android:name="com.example.movie_booking.fragment.ChiTietPhimFragment"
+        android:label="Chi Tiết Phim"
+        tools:layout="@layout/fragment_chi_tiet_phim">
+        <argument
+            android:name="phim_data"
+            app:argType="com.example.movie_booking.object.Phim" />
+        <action
+            android:id="@+id/action_chiTietPhimFragment_to_datVeFragment"
+            app:destination="@id/datVeFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/datVeFragment"
+        android:name="com.example.movie_booking.fragment.DatVeFragment"
+        android:label="Đặt Vé"
+        tools:layout="@layout/fragment_dat_ve">
+        <argument
+            android:name="movie_data"
+            app:argType="com.example.movie_booking.object.Phim" />
+        <action
+            android:id="@+id/action_datVeFragment_to_chonGheFragment"
+            app:destination="@id/chonGheFragment" />
+        <action
+            android:id="@+id/action_datVeFragment_to_chiTietPhimFragment"
+            app:destination="@id/chiTietPhimFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/chonGheFragment"
+        android:name="com.example.movie_booking.fragment.ChonGheFragment"
+        android:label="Chọn Ghế"
+        tools:layout="@layout/fragment_chon_ghe">
+        <argument
+            android:name="suat_chieu_data"
+            app:argType="com.example.movie_booking.object.SuatChieu" />
+        <action
+            android:id="@+id/action_chonGheFragment_to_thanhToanFragment"
+            app:destination="@id/thanhToanFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/thanhToanFragment"
+        android:name="com.example.movie_booking.fragment.ThanhToanFragment"
+        android:label="Thanh Toán"
+        tools:layout="@layout/fragment_thanh_toan">
+        <argument
+            android:name="tong_tien"
+            app:argType="float" />
+        <argument
+            android:name="suat_chieu_data"
+            app:argType="com.example.movie_booking.object.SuatChieu" />
+        <argument
+            android:name="selected_ghes"
+            app:argType="com.example.movie_booking.object.Ghe[]" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/quanLyPhimFragment"
+        android:name="com.example.movie_booking.fragment.QuanLyPhimFragment"
+        android:label="Quản Lý Phim"
+        tools:layout="@layout/fragment_quan_ly_phim" />
+</navigation>

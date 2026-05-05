@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/homeFragment"
+        android:icon="@drawable/icon_home"
+        android:title="Trang chủ" />
+    <item
+        android:id="@+id/locationFragment"
+        android:icon="@drawable/icon_location"
+        android:title="Rạp" />
+    <item
+        android:id="@+id/ticketFragment"
+        android:icon="@drawable/icon_ticket"
+        android:title="Vé" />
+    <item
+        android:id="@+id/managementFragment"
+        android:icon="@drawable/icon_grid"
+        android:title="Quản lý" />
+    <item
+        android:id="@+id/profileFragment"
+        android:icon="@drawable/icon_profile"
+        android:title="Cá nhân" />
+</menu>
+

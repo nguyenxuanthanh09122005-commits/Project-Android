@@ -1,27 +1,31 @@
-package com.example.movie_booking.activity;
+package com.example.movie_booking.fragment;
 
 import android.app.AlertDialog;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import androidx.appcompat.app.AppCompatActivity;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.movie_booking.R;
 import com.example.movie_booking.dao.SuatChieuDao;
 import com.example.movie_booking.object.Phim;
-import com.example.movie_booking.viewmodel.PhimViewModel;
 import com.example.movie_booking.viewmodel.RapViewModel;
 import com.example.movie_booking.viewmodel.SuatChieuViewModel;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -32,12 +36,12 @@ import java.util.TreeMap;
 import adapter.NgayAdapter;
 import adapter.RapAdapter;
 
-public class DatVeActivity extends AppCompatActivity {
+public class DatVeFragment extends Fragment {
 
     private ImageView imgBanner, btnQuayLai;
     private TextView tvTenPhim, tvThongTinPhim, tvChonKhuVuc, tvChiTietPhim;
     private RecyclerView rvLichChieu, rvNgay;
-    
+
     private RapAdapter rapAdapter;
     private NgayAdapter ngayAdapter;
     private List<SuatChieuDao.SuatChieuWithTheater> allSuatChieu = new ArrayList<>();
@@ -45,53 +49,59 @@ public class DatVeActivity extends AppCompatActivity {
     private String selectedFullDate = "";
     private Phim currentPhim;
 
-    private PhimViewModel phimViewModel;
     private RapViewModel rapViewModel;
     private SuatChieuViewModel suatChieuViewModel;
 
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_dat_ve);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_dat_ve, container, false);
+    }
 
-        khoiTaoGiaoDien();
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        if (getArguments() != null) {
+            currentPhim = (Phim) getArguments().getSerializable("movie_data");
+        }
+
+        khoiTaoGiaoDien(view);
         thietLapViewModel();
-
-        currentPhim = (Phim) getIntent().getSerializableExtra("movie_data");
 
         if (currentPhim != null) {
             hienThiDuLieuPhim(currentPhim);
             taiTatCaSuatChieu(currentPhim.getId_phim());
         }
 
-        btnQuayLai.setOnClickListener(v -> finish());
+        btnQuayLai.setOnClickListener(v -> Navigation.findNavController(v).navigateUp());
         tvChonKhuVuc.setOnClickListener(v -> hienThiDialogChonKhuVuc());
-        
+
         tvChiTietPhim.setOnClickListener(v -> {
             if (currentPhim != null) {
-                Intent intent = new Intent(DatVeActivity.this, ChiTietPhimActivity.class);
-                intent.putExtra("phim_data", currentPhim);
-                startActivity(intent);
+                // Chuyển sang ChiTietPhimFragment bằng Navigation Component
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("phim_data", currentPhim);
+                Navigation.findNavController(v).navigate(R.id.action_datVeFragment_to_chiTietPhimFragment, bundle);
             }
         });
     }
 
-    private void khoiTaoGiaoDien() {
-        imgBanner = findViewById(R.id.imgBanner);
-        btnQuayLai = findViewById(R.id.btnQuayLai);
-        tvTenPhim = findViewById(R.id.tvTenPhim);
-        tvThongTinPhim = findViewById(R.id.tvThongTinPhim);
-        tvChonKhuVuc = findViewById(R.id.tvChonKhuVuc);
-        tvChiTietPhim = findViewById(R.id.tvChiTietPhim);
-        rvLichChieu = findViewById(R.id.rvLichChieu);
-        rvNgay = findViewById(R.id.rvNgay);
-        
-        rvLichChieu.setLayoutManager(new LinearLayoutManager(this));
-        rvNgay.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+    private void khoiTaoGiaoDien(View view) {
+        imgBanner = view.findViewById(R.id.imgBanner);
+        btnQuayLai = view.findViewById(R.id.btnQuayLai);
+        tvTenPhim = view.findViewById(R.id.tvTenPhim);
+        tvThongTinPhim = view.findViewById(R.id.tvThongTinPhim);
+        tvChonKhuVuc = view.findViewById(R.id.tvChonKhuVuc);
+        tvChiTietPhim = view.findViewById(R.id.tvChiTietPhim);
+        rvLichChieu = view.findViewById(R.id.rvLichChieu);
+        rvNgay = view.findViewById(R.id.rvNgay);
+
+        rvLichChieu.setLayoutManager(new LinearLayoutManager(getContext()));
+        rvNgay.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
     }
 
     private void thietLapViewModel() {
-        phimViewModel = new ViewModelProvider(this).get(PhimViewModel.class);
         rapViewModel = new ViewModelProvider(this).get(RapViewModel.class);
         suatChieuViewModel = new ViewModelProvider(this).get(SuatChieuViewModel.class);
     }
@@ -106,7 +116,7 @@ public class DatVeActivity extends AppCompatActivity {
             if (tenHinhAnh.contains(".")) {
                 tenHinhAnh = tenHinhAnh.substring(0, tenHinhAnh.lastIndexOf("."));
             }
-            int resId = getResources().getIdentifier(tenHinhAnh, "drawable", getPackageName());
+            int resId = getResources().getIdentifier(tenHinhAnh, "drawable", requireContext().getPackageName());
             if (resId != 0) {
                 imgBanner.setImageResource(resId);
             }
@@ -114,9 +124,8 @@ public class DatVeActivity extends AppCompatActivity {
     }
 
     private void taiTatCaSuatChieu(int idPhim) {
-        suatChieuViewModel.getSuatChieuWithTheaterByPhim(idPhim).observe(this, rawSuatChieu -> {
+        suatChieuViewModel.getSuatChieuWithTheaterByPhim(idPhim).observe(getViewLifecycleOwner(), rawSuatChieu -> {
             if (rawSuatChieu == null || rawSuatChieu.isEmpty()) {
-                Log.w("DatVeActivity", "No showtimes found for movie ID: " + idPhim);
                 rvNgay.setAdapter(null);
                 rvLichChieu.setAdapter(null);
                 return;
@@ -133,7 +142,7 @@ public class DatVeActivity extends AppCompatActivity {
                         allSuatChieu.add(sc);
                     }
                 } catch (ParseException e) {
-                    Log.e("DatVeActivity", "Lỗi định dạng ngày giờ: " + sc.thoi_gian_bat_dau, e);
+                    Log.e("DatVeFragment", "Lỗi định dạng ngày giờ", e);
                 }
             }
 
@@ -159,9 +168,7 @@ public class DatVeActivity extends AppCompatActivity {
                         String thang = sdfMonth.format(date);
                         mapNgay.put(dateStr, new NgayAdapter.NgayItem(thu, ngay, thang, dateStr));
                     }
-                } catch (Exception e) {
-                    Log.e("DatVeActivity", "Lỗi parse ngày: " + sc.thoi_gian_bat_dau, e);
-                }
+                } catch (Exception ignored) {}
             }
 
             List<NgayAdapter.NgayItem> listNgay = new ArrayList<>(mapNgay.values());
@@ -179,14 +186,14 @@ public class DatVeActivity extends AppCompatActivity {
     }
 
     private void hienThiDialogChonKhuVuc() {
-        rapViewModel.getAllThanhPho().observe(this, cities -> {
+        rapViewModel.getAllThanhPho().observe(getViewLifecycleOwner(), cities -> {
             if (cities == null) return;
             List<String> listThanhPho = new ArrayList<>(cities);
             listThanhPho.add(0, "Tất cả");
-            
+
             String[] arrays = listThanhPho.toArray(new String[0]);
-            
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
             builder.setTitle("Chọn thành phố");
             builder.setItems(arrays, (dialog, which) -> {
                 selectedThanhPho = arrays[which];
@@ -201,15 +208,9 @@ public class DatVeActivity extends AppCompatActivity {
         if (allSuatChieu == null || allSuatChieu.isEmpty()) return;
 
         Map<String, List<SuatChieuDao.SuatChieuWithTheater>> lichChieuTheoRap = new HashMap<>();
-        
-        // Để tối ưu MVVM, ta nên lấy thông tin thành phố của tất cả rạp một lần
-        // Tuy nhiên với logic hiện tại, ta lọc trực tiếp trên allSuatChieu đã có thông tin rạp
+
         for (SuatChieuDao.SuatChieuWithTheater item : allSuatChieu) {
             boolean matchesDate = item.thoi_gian_bat_dau.startsWith(selectedFullDate);
-            // Ở phiên bản thực tế, SuatChieuWithTheater nên chứa luôn thông tin thanh_pho
-            // để tránh phải gọi DB liên tục trong vòng lặp. 
-            // Ở đây tôi giữ logic lọc cơ bản để đảm bảo Activity chạy được.
-            
             if (matchesDate) {
                 if (!lichChieuTheoRap.containsKey(item.ten_rap)) {
                     lichChieuTheoRap.put(item.ten_rap, new ArrayList<>());
@@ -217,7 +218,7 @@ public class DatVeActivity extends AppCompatActivity {
                 lichChieuTheoRap.get(item.ten_rap).add(item);
             }
         }
-        
+
         rapAdapter = new RapAdapter(lichChieuTheoRap);
         rvLichChieu.setAdapter(rapAdapter);
     }

@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#1B113D">
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/layoutBottom"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/imgBackdrop"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/detail_backdrop_height"
+                android:scaleType="centerCrop"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:src="@drawable/logo_beta" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/detail_backdrop_height"
+                android:background="@drawable/bg_gradient_movie"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageView
+                android:id="@+id/btnBack"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_margin="@dimen/screen_padding"
+                android:background="@drawable/bg_circle_btn"
+                android:padding="8dp"
+                android:src="@drawable/ic_back"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageView
+                android:id="@+id/btnPlayTrailer"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:src="@drawable/ic_play"
+                app:layout_constraintBottom_toBottomOf="@+id/imgBackdrop"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/imgBackdrop" />
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardPoster"
+                android:layout_width="@dimen/detail_poster_width"
+                android:layout_height="@dimen/detail_poster_height"
+                android:layout_marginStart="@dimen/screen_padding"
+                app:cardCornerRadius="8dp"
+                app:layout_constraintBottom_toBottomOf="@+id/imgBackdrop"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/imgBackdrop">
+
+                <ImageView
+                    android:id="@+id/imgPoster"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    tools:src="@drawable/logo_beta" />
+            </androidx.cardview.widget.CardView>
+
+            <TextView
+                android:id="@+id/tvMovieTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/screen_padding"
+                android:layout_marginTop="8dp"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/detail_title_size"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/cardPoster"
+                app:layout_constraintTop_toBottomOf="@+id/imgBackdrop"
+                tools:text="Tên phim" />
+
+            <TextView
+                android:id="@+id/tvAgeRating"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/bg_age_rating"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="2dp"
+                android:textColor="@android:color/white"
+                android:textSize="12sp"
+                app:layout_constraintStart_toStartOf="@+id/tvMovieTitle"
+                app:layout_constraintTop_toBottomOf="@+id/tvMovieTitle"
+                tools:text="T13" />
+
+            <TextView
+                android:id="@+id/tvGenre"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/item_margin"
+                android:textColor="#B0B0B0"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/cardPoster"
+                app:layout_constraintTop_toBottomOf="@+id/cardPoster"
+                tools:text="Hành động, Phiêu lưu" />
+
+            <TextView
+                android:id="@+id/tvDuration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textColor="#B0B0B0"
+                app:layout_constraintStart_toStartOf="@+id/tvGenre"
+                app:layout_constraintTop_toBottomOf="@+id/tvGenre"
+                tools:text="120 phút" />
+
+            <TextView
+                android:id="@+id/tvReleaseDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textColor="#B0B0B0"
+                app:layout_constraintStart_toStartOf="@+id/tvDuration"
+                app:layout_constraintTop_toBottomOf="@+id/tvDuration"
+                tools:text="Khởi chiếu: 2024-01-01" />
+
+            <TextView
+                android:id="@+id/labelStory"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/content_spacing"
+                android:text="Nội dung phim"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/detail_label_size"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="@+id/tvReleaseDate"
+                app:layout_constraintTop_toBottomOf="@+id/tvReleaseDate" />
+
+            <TextView
+                android:id="@+id/tvDescription"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="@dimen/screen_padding"
+                android:textColor="#D0D0D0"
+                android:textSize="@dimen/detail_desc_size"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/labelStory"
+                app:layout_constraintTop_toBottomOf="@+id/labelStory"
+                tools:text="Mô tả phim..." />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <LinearLayout
+        android:id="@+id/layoutBottom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#251A4D"
+        android:orientation="horizontal"
+        android:padding="@dimen/screen_padding"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <Button
+            android:id="@+id/btnShare"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Chia sẻ"
+            android:textColor="@android:color/white"
+            app:strokeColor="@android:color/white" />
+
+        <Button
+            android:id="@+id/btnDatVe"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/screen_padding"
+            android:layout_weight="1"
+            android:backgroundTint="#00468C"
+            android:text="ĐẶT VÉ NGAY"
+            android:textColor="@android:color/white"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

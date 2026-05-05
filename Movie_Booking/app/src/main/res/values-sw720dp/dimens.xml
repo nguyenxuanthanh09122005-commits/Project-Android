@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Common margins and paddings for 10-inch Tablets (sw720dp) -->
+    <dimen name="screen_padding">48dp</dimen>
+    <dimen name="item_margin">24dp</dimen>
+    <dimen name="content_spacing">48dp</dimen>
+    <dimen name="header_height">88dp</dimen>
+
+    <!-- Profile Fragment -->
+    <dimen name="profile_avatar_size">180dp</dimen>
+    <dimen name="profile_name_size">32sp</dimen>
+    <dimen name="profile_card_height">160dp</dimen>
+    <dimen name="profile_icon_size">52dp</dimen>
+    <dimen name="profile_text_size">20sp</dimen>
+
+    <!-- Home Fragment -->
+    <dimen name="home_title_size">36sp</dimen>
+    <dimen name="home_section_title_size">28sp</dimen>
+
+    <!-- Detail Fragment -->
+    <dimen name="detail_backdrop_height">450dp</dimen>
+    <dimen name="detail_poster_width">240dp</dimen>
+    <dimen name="detail_poster_height">360dp</dimen>
+    <dimen name="detail_title_size">36sp</dimen>
+    <dimen name="detail_label_size">28sp</dimen>
+    <dimen name="detail_desc_size">20sp</dimen>
+
+    <!-- Booking (DatVe) Fragment -->
+    <dimen name="booking_banner_height">400dp</dimen>
+    <dimen name="booking_title_size">36sp</dimen>
+    <dimen name="booking_info_size">20sp</dimen>
+
+    <!-- Seat Selection -->
+    <dimen name="seat_screen_width">600dp</dimen>
+    <dimen name="seat_grid_margin_top">120dp</dimen>
+
+    <!-- Payment Fragment -->
+    <dimen name="payment_timer_text_size">56sp</dimen>
+    <dimen name="payment_amount_text_size">32sp</dimen>
+    <dimen name="payment_qr_size">450dp</dimen>
+
+    <!-- Management -->
+    <dimen name="management_card_height">200dp</dimen>
+    <dimen name="management_icon_size">72dp</dimen>
+    <dimen name="management_title_size">36sp</dimen>
+</resources>

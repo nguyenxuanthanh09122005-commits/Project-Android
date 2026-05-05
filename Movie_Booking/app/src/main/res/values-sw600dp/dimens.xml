@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="screen_padding">32dp</dimen>
+    <dimen name="item_margin">16dp</dimen>
+    <dimen name="content_spacing">32dp</dimen>
+    <dimen name="header_height">72dp</dimen>
+
+    <!-- Seat Selection for Tablets -->
+    <dimen name="seat_screen_width">500dp</dimen>
+    <dimen name="seat_grid_margin_top">100dp</dimen>
+    <dimen name="seat_label_size">18sp</dimen>
+    <dimen name="seat_info_title_size">22sp</dimen>
+
+    <dimen name="profile_avatar_size">150dp</dimen>
+    <dimen name="profile_name_size">28sp</dimen>
+    <dimen name="profile_card_height">140dp</dimen>
+    <dimen name="profile_icon_size">40dp</dimen>
+    <dimen name="profile_text_size">18sp</dimen>
+
+    <dimen name="home_title_size">30sp</dimen>
+    <dimen name="home_section_title_size">24sp</dimen>
+
+    <dimen name="detail_backdrop_height">400dp</dimen>
+    <dimen name="detail_poster_width">200dp</dimen>
+    <dimen name="detail_poster_height">300dp</dimen>
+    <dimen name="detail_title_size">32sp</dimen>
+    <dimen name="detail_label_size">24sp</dimen>
+    <dimen name="detail_desc_size">18sp</dimen>
+</resources>

@@ -1,16 +1,15 @@
 package adapter;
 
-import android.content.Context;
-import android.content.Intent;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.movie_booking.R;
-import com.example.movie_booking.activity.ChonGheActivity;
 import com.example.movie_booking.object.SuatChieu;
 
 import java.util.List;
@@ -44,14 +43,10 @@ public class SuatChieuAdapter extends RecyclerView.Adapter<SuatChieuAdapter.Suat
         }
 
         holder.itemView.setOnClickListener(v -> {
-            navigateToSeatSelection(v.getContext(), suatChieu);
+            Bundle bundle = new Bundle();
+            bundle.putSerializable("suat_chieu_data", suatChieu);
+            Navigation.findNavController(v).navigate(R.id.action_datVeFragment_to_chonGheFragment, bundle);
         });
-    }
-
-    private void navigateToSeatSelection(Context context, SuatChieu suatChieu) {
-        Intent intent = new Intent(context, ChonGheActivity.class);
-        intent.putExtra("suat_chieu_data", suatChieu);
-        context.startActivity(intent);
     }
 
     @Override

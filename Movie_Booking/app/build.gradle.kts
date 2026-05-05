@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
+    // alias(libs.plugins.google.services)
 }
 
 android {
@@ -48,8 +49,18 @@ dependencies {
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
     implementation("androidx.core:core-splashscreen:1.0.1")
-    val room_version = "2.6.1"
+    
+    // Navigation Component
+    implementation(libs.navigation.fragment)
+    implementation(libs.navigation.ui)
 
+    // Firebase (Tạm thời loại bỏ)
+    // implementation(platform(libs.firebase.bom))
+    // implementation(libs.firebase.auth)
+    // implementation(libs.firebase.firestore)
+    // implementation(libs.firebase.storage)
+
+    val room_version = "2.6.1"
     implementation("androidx.room:room-runtime:$room_version")
     annotationProcessor("androidx.room:room-compiler:$room_version")
     implementation("androidx.room:room-rxjava2:$room_version")
@@ -58,7 +69,7 @@ dependencies {
     testImplementation("androidx.room:room-testing:$room_version")
     implementation("androidx.room:room-paging:$room_version")
 
-    // Glide for image loading (including QR code from URL)
+    // Glide for image loading
     implementation("com.github.bumptech.glide:glide:4.16.0")
     annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
 

@@ -16,6 +16,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Movie_Booking"
         android:hasFragileUserData="true">
+
         <activity
             android:name=".activity.TrangChuActivity"
             android:exported="true"
@@ -25,22 +26,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".activity.DatVeActivity"
-            android:exported="false" />
-        <activity android:name=".activity.ChiTietPhimActivity"
-            android:configChanges="orientation|screenSize|keyboardHidden"
-            android:exported="false" />
-        <activity
-            android:name=".activity.ChonGheActivity"
-            android:exported="false" />
-        <activity
-            android:name=".activity.ThanhToanActivity"
-            android:exported="false" />
-        <activity
-            android:name=".activity.QuanLyPhimActivity"
-            android:exported="false"
-            android:label="Quản lý phim" />
+
+        <!-- Các Activity khác đã được chuyển sang Fragment và không còn cần thiết -->
+
     </application>
 
 </manifest>

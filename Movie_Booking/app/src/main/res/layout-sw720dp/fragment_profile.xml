@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#1B113D"
+    android:padding="@dimen/screen_padding">
+
+    <ImageView
+        android:id="@+id/imgProfile"
+        android:layout_width="@dimen/profile_avatar_size"
+        android:layout_height="@dimen/profile_avatar_size"
+        android:layout_marginTop="80dp"
+        android:src="@drawable/icon_profile"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tvRole"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="Quản trị viên"
+        android:textColor="@android:color/white"
+        android:textSize="@dimen/profile_name_size"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/imgProfile" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="80dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvRole"
+        app:layout_constraintWidth_max="900dp">
+
+        <LinearLayout
+            android:id="@+id/lnVeCuaToi"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/profile_card_height"
+            android:layout_margin="@dimen/item_margin"
+            android:background="@drawable/bg_search"
+            android:gravity="center"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toStartOf="@+id/lnQuanLyPhim"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:layout_width="@dimen/profile_icon_size"
+                android:layout_height="@dimen/profile_icon_size"
+                android:src="@drawable/icon_ticket" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Vé của tôi"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/profile_text_size" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/lnQuanLyPhim"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/profile_card_height"
+            android:layout_margin="@dimen/item_margin"
+            android:background="@drawable/bg_search"
+            android:gravity="center"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/lnVeCuaToi"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:layout_width="@dimen/profile_icon_size"
+                android:layout_height="@dimen/profile_icon_size"
+                android:src="@android:drawable/ic_menu_slideshow" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Quản lý Phim"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/profile_text_size" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/lnQuanLySuatChieu"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/profile_card_height"
+            android:layout_margin="@dimen/item_margin"
+            android:background="@drawable/bg_search"
+            android:gravity="center"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toStartOf="@+id/lnCaiDat"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/lnVeCuaToi">
+
+            <ImageView
+                android:layout_width="@dimen/profile_icon_size"
+                android:layout_height="@dimen/profile_icon_size"
+                android:src="@android:drawable/ic_menu_month" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Suất Chiếu"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/profile_text_size" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/lnCaiDat"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/profile_card_height"
+            android:layout_margin="@dimen/item_margin"
+            android:background="@drawable/bg_search"
+            android:gravity="center"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/lnQuanLySuatChieu"
+            app:layout_constraintTop_toBottomOf="@id/lnQuanLyPhim">
+
+            <ImageView
+                android:layout_width="@dimen/profile_icon_size"
+                android:layout_height="@dimen/profile_icon_size"
+                android:src="@android:drawable/ic_menu_preferences" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Cài đặt"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/profile_text_size" />
+        </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <Button
+        android:id="@+id/btnLogOut"
+        android:layout_width="300dp"
+        android:layout_height="64dp"
+        android:layout_marginBottom="60dp"
+        android:backgroundTint="#D32F2F"
+        android:text="Đăng xuất"
+        android:textColor="@android:color/white"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

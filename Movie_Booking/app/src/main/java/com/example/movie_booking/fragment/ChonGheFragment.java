@@ -1,15 +1,21 @@
-package com.example.movie_booking.activity;
+package com.example.movie_booking.fragment;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
-import android.content.Intent;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-import androidx.appcompat.app.AppCompatActivity;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -26,7 +32,7 @@ import java.util.List;
 
 import adapter.GheAdapter;
 
-public class ChonGheActivity extends AppCompatActivity {
+public class ChonGheFragment extends Fragment {
 
     private RecyclerView rvGhe;
     private TextView tvGheDaChon, tvTongTien;
@@ -37,31 +43,48 @@ public class ChonGheActivity extends AppCompatActivity {
     private DecimalFormat formatter = new DecimalFormat("###,###,###");
     private double currentTongTien = 0;
     private String doTuoiQuyDinh = "P";
-    
+
     private GheViewModel gheViewModel;
     private PhimViewModel phimViewModel;
 
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_chon_ghe);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_chon_ghe, container, false);
+    }
 
-        suatChieu = (SuatChieu) getIntent().getSerializableExtra("suat_chieu_data");
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
-        khoiTaoGiaoDien();
+        if (getArguments() != null) {
+            suatChieu = (SuatChieu) getArguments().getSerializable("suat_chieu_data");
+        }
+
+        khoiTaoGiaoDien(view);
         thietLapViewModel();
 
-        btnBack.setOnClickListener(v -> finish());
-        
+        btnBack.setOnClickListener(v -> Navigation.findNavController(v).navigateUp());
+
         btnTiepTuc.setOnClickListener(v -> {
             if (gheAdapter == null) return;
             List<Ghe> selectedGhes = gheAdapter.getSelectedGhes();
             if (selectedGhes.isEmpty()) {
-                Toast.makeText(this, "Vui lòng chọn ghế!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Vui lòng chọn ghế!", Toast.LENGTH_SHORT).show();
             } else {
-                checkAgeAndProceed(selectedGhes);
+                checkAgeAndProceed(selectedGhes, v);
             }
         });
+    }
+
+    private void khoiTaoGiaoDien(View view) {
+        rvGhe = view.findViewById(R.id.rvGhe);
+        tvGheDaChon = view.findViewById(R.id.tvGheDaChon);
+        tvTongTien = view.findViewById(R.id.tvTongTien);
+        btnTiepTuc = view.findViewById(R.id.btnTiepTuc);
+        btnBack = view.findViewById(R.id.btnBack);
+
+        rvGhe.setLayoutManager(new GridLayoutManager(getContext(), 8));
     }
 
     private void thietLapViewModel() {
@@ -69,11 +92,10 @@ public class ChonGheActivity extends AppCompatActivity {
         phimViewModel = new ViewModelProvider(this).get(PhimViewModel.class);
 
         if (suatChieu != null) {
-            // Lấy độ tuổi quy định của phim
-            phimViewModel.getAllPhims().observe(this, phims -> {
+            phimViewModel.getAllPhims().observe(getViewLifecycleOwner(), phims -> {
                 if (phims != null) {
                     for (com.example.movie_booking.object.Phim p : phims) {
-                        if (p.getId_phim() == suatChieu.getId_phim()) {
+                        if (p.getId_phim() != null && p.getId_phim() == suatChieu.getId_phim()) {
                             doTuoiQuyDinh = p.getDo_tuoi_quy_dinh();
                             break;
                         }
@@ -86,16 +108,16 @@ public class ChonGheActivity extends AppCompatActivity {
     }
 
     private void taiDuLieuGhe() {
-        gheViewModel.getGheByPhong(suatChieu.getId_phong()).observe(this, tatCaGhe -> {
+        gheViewModel.getGheByPhong(suatChieu.getId_phong()).observe(getViewLifecycleOwner(), tatCaGhe -> {
             if (tatCaGhe != null) {
-                gheViewModel.getGheDaDat(suatChieu.getId_suat_chieu()).observe(this, gheDaDat -> {
+                gheViewModel.getGheDaDat(suatChieu.getId_suat_chieu()).observe(getViewLifecycleOwner(), gheDaDat -> {
                     List<Integer> bookedIds = new ArrayList<>();
                     if (gheDaDat != null) {
                         for (Ghe g : gheDaDat) {
                             bookedIds.add(g.getId_ghe());
                         }
                     }
-                    
+
                     gheAdapter = new GheAdapter(tatCaGhe, bookedIds, selectedGhes -> {
                         capNhatThongTin(selectedGhes);
                     });
@@ -103,79 +125,6 @@ public class ChonGheActivity extends AppCompatActivity {
                 });
             }
         });
-    }
-
-    private void checkAgeAndProceed(List<Ghe> selectedGhes) {
-        if (doTuoiQuyDinh == null || doTuoiQuyDinh.equalsIgnoreCase("P")) {
-            navigateToPayment(selectedGhes);
-            return;
-        }
-
-        int requiredAge = 0;
-        try {
-            if (doTuoiQuyDinh.length() > 1) {
-                requiredAge = Integer.parseInt(doTuoiQuyDinh.substring(1));
-            }
-        } catch (Exception e) {
-            requiredAge = 0;
-        }
-
-        if (requiredAge == 0) {
-            navigateToPayment(selectedGhes);
-            return;
-        }
-
-        Calendar calendar = Calendar.getInstance();
-        int finalRequiredAge = requiredAge;
-        
-        DatePickerDialog datePickerDialog = new DatePickerDialog(
-                this, 
-                AlertDialog.THEME_HOLO_LIGHT,
-                (view, year, month, dayOfMonth) -> {
-                    Calendar birthDate = Calendar.getInstance();
-                    birthDate.set(year, month, dayOfMonth);
-                    
-                    int age = calendar.get(Calendar.YEAR) - birthDate.get(Calendar.YEAR);
-                    if (calendar.get(Calendar.DAY_OF_YEAR) < birthDate.get(Calendar.DAY_OF_YEAR)) {
-                        age--;
-                    }
-
-                    if (age >= finalRequiredAge) {
-                        navigateToPayment(selectedGhes);
-                    } else {
-                        Toast.makeText(this, "Bạn chưa đủ " + finalRequiredAge + " tuổi để xem phim này!", Toast.LENGTH_LONG).show();
-                        Intent intent = new Intent(this, TrangChuActivity.class);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                        startActivity(intent);
-                        finish();
-                    }
-                }, 
-                calendar.get(Calendar.YEAR) - finalRequiredAge,
-                calendar.get(Calendar.MONTH), 
-                calendar.get(Calendar.DAY_OF_MONTH)
-        );
-        
-        datePickerDialog.setTitle("Xác nhận ngày sinh (Phim " + doTuoiQuyDinh + ")");
-        datePickerDialog.getDatePicker().setMaxDate(System.currentTimeMillis());
-        datePickerDialog.show();
-    }
-
-    private void navigateToPayment(List<Ghe> selectedGhes) {
-        Intent intent = new Intent(this, ThanhToanActivity.class);
-        intent.putExtra("tong_tien", currentTongTien);
-        intent.putExtra("suat_chieu_data", suatChieu);
-        intent.putExtra("selected_ghes", new ArrayList<>(selectedGhes));
-        startActivity(intent);
-    }
-
-    private void khoiTaoGiaoDien() {
-        rvGhe = findViewById(R.id.rvGhe);
-        tvGheDaChon = findViewById(R.id.tvGheDaChon);
-        tvTongTien = findViewById(R.id.tvTongTien);
-        btnTiepTuc = findViewById(R.id.btnTiepTuc);
-        btnBack = findViewById(R.id.btnBack);
-
-        rvGhe.setLayoutManager(new GridLayoutManager(this, 8));
     }
 
     private void capNhatThongTin(List<Ghe> selectedGhes) {
@@ -205,5 +154,65 @@ public class ChonGheActivity extends AppCompatActivity {
         currentTongTien = tongTien;
         tvGheDaChon.setText(sb.toString());
         tvTongTien.setText("Tổng: " + formatter.format(tongTien) + "đ");
+    }
+
+    private void checkAgeAndProceed(List<Ghe> selectedGhes, View view) {
+        if (doTuoiQuyDinh == null || doTuoiQuyDinh.equalsIgnoreCase("P")) {
+            navigateToPayment(selectedGhes, view);
+            return;
+        }
+
+        int requiredAge = 0;
+        try {
+            if (doTuoiQuyDinh.length() > 1) {
+                requiredAge = Integer.parseInt(doTuoiQuyDinh.substring(1));
+            }
+        } catch (Exception e) {
+            requiredAge = 0;
+        }
+
+        if (requiredAge == 0) {
+            navigateToPayment(selectedGhes, view);
+            return;
+        }
+
+        Calendar calendar = Calendar.getInstance();
+        int finalRequiredAge = requiredAge;
+
+        DatePickerDialog datePickerDialog = new DatePickerDialog(
+                requireContext(),
+                AlertDialog.THEME_HOLO_LIGHT,
+                (v, year, month, dayOfMonth) -> {
+                    Calendar birthDate = Calendar.getInstance();
+                    birthDate.set(year, month, dayOfMonth);
+
+                    int age = calendar.get(Calendar.YEAR) - birthDate.get(Calendar.YEAR);
+                    if (calendar.get(Calendar.DAY_OF_YEAR) < birthDate.get(Calendar.DAY_OF_YEAR)) {
+                        age--;
+                    }
+
+                    if (age >= finalRequiredAge) {
+                        navigateToPayment(selectedGhes, view);
+                    } else {
+                        Toast.makeText(getContext(), "Bạn chưa đủ " + finalRequiredAge + " tuổi để xem phim này!", Toast.LENGTH_LONG).show();
+                        Navigation.findNavController(view).popBackStack(R.id.homeFragment, false);
+                    }
+                },
+                calendar.get(Calendar.YEAR) - finalRequiredAge,
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
+        );
+
+        datePickerDialog.setTitle("Xác nhận ngày sinh (Phim " + doTuoiQuyDinh + ")");
+        datePickerDialog.getDatePicker().setMaxDate(System.currentTimeMillis());
+        datePickerDialog.show();
+    }
+
+    private void navigateToPayment(List<Ghe> selectedGhes, View view) {
+        Bundle bundle = new Bundle();
+        bundle.putFloat("tong_tien", (float) currentTongTien);
+        bundle.putSerializable("suat_chieu_data", suatChieu);
+        bundle.putSerializable("selected_ghes", selectedGhes.toArray(new Ghe[0]));
+        Navigation.findNavController(view).navigate(R.id.action_chonGheFragment_to_thanhToanFragment, bundle);
     }
 }

@@ -9,9 +9,11 @@
     <!-- Header -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/header"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
         android:background="#00468C"
+        app:layout_constraintEnd_toStartOf="@+id/layoutBottomLand"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
@@ -30,59 +32,70 @@
             android:layout_height="wrap_content"
             android:text="CHỌN GHẾ"
             android:textColor="@android:color/white"
-            android:textSize="18sp"
+            android:textSize="16sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- Screen indicator -->
-    <View
-        android:id="@+id/viewScreen"
-        android:layout_width="200dp"
-        android:layout_height="4dp"
-        android:layout_marginTop="32dp"
-        android:background="#FFFFFF"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/header" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="MÀN HÌNH"
-        android:textColor="#FFFFFF"
-        android:textSize="12sp"
-        app:layout_constraintEnd_toEndOf="@id/viewScreen"
-        app:layout_constraintStart_toStartOf="@id/viewScreen"
-        app:layout_constraintTop_toBottomOf="@id/viewScreen" />
-
-    <!-- Seat Grid -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvGhe"
-        android:layout_width="wrap_content"
+    <!-- Khu vực chọn ghế (Bên trái) -->
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="60dp"
-        android:layout_marginBottom="16dp"
-        android:padding="8dp"
-        app:layout_constraintBottom_toTopOf="@id/layoutBottom"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/layoutBottomLand"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/viewScreen"
-        tools:listitem="@layout/item_ghe" />
+        app:layout_constraintTop_toBottomOf="@id/header">
 
-    <!-- Bottom info and booking button -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="24dp">
+
+            <View
+                android:id="@+id/viewScreen"
+                android:layout_width="200dp"
+                android:layout_height="4dp"
+                android:layout_marginTop="16dp"
+                android:background="#FFFFFF"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="MÀN HÌNH"
+                android:textColor="#FFFFFF"
+                android:textSize="10sp"
+                app:layout_constraintEnd_toEndOf="@id/viewScreen"
+                app:layout_constraintStart_toStartOf="@id/viewScreen"
+                app:layout_constraintTop_toBottomOf="@id/viewScreen" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvGhe"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/viewScreen"
+                tools:listitem="@layout/item_ghe" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- Panel thông tin (Bên phải) -->
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/layoutBottom"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:id="@+id/layoutBottomLand"
+        android:layout_width="200dp"
+        android:layout_height="match_parent"
         android:background="#FFFFFF"
         android:padding="16dp"
-        app:layout_constraintBottom_toBottomOf="parent">
+        app:layout_constraintEnd_toEndOf="parent">
 
         <TextView
             android:id="@+id/tvGheDaChon"
@@ -98,24 +111,22 @@
             android:id="@+id/tvTongTien"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="8dp"
             android:text="Tổng: 0đ"
             android:textColor="#F44336"
-            android:textSize="16sp"
+            android:textSize="18sp"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvGheDaChon" />
 
         <Button
             android:id="@+id/btnTiepTuc"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:backgroundTint="#00468C"
             android:text="TIẾP TỤC"
             android:textColor="@android:color/white"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintBottom_toBottomOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

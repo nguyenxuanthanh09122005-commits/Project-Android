@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:padding="16dp">
+    android:layout_height="wrap_content">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:padding="@dimen/screen_padding">
 
         <TextView
             android:id="@+id/tvDialogTitle"
@@ -16,7 +17,7 @@
             android:text="Thêm phim mới"
             android:textSize="20sp"
             android:textStyle="bold"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="@dimen/screen_padding"
             android:textColor="#00529C"/>
 
         <EditText
@@ -32,7 +33,7 @@
             android:layout_height="wrap_content"
             android:hint="Thể loại"
             android:inputType="text"
-            android:layout_marginTop="8dp"/>
+            android:layout_marginTop="@dimen/item_margin"/>
 
         <EditText
             android:id="@+id/etThoiLuong"
@@ -40,7 +41,7 @@
             android:layout_height="wrap_content"
             android:hint="Thời lượng (phút)"
             android:inputType="number"
-            android:layout_marginTop="8dp"/>
+            android:layout_marginTop="@dimen/item_margin"/>
 
         <EditText
             android:id="@+id/etNgayKhoiChieu"
@@ -48,7 +49,7 @@
             android:layout_height="wrap_content"
             android:hint="Ngày khởi chiếu (yyyy-MM-dd)"
             android:inputType="date"
-            android:layout_marginTop="8dp"/>
+            android:layout_marginTop="@dimen/item_margin"/>
 
         <EditText
             android:id="@+id/etDoTuoi"
@@ -56,15 +57,15 @@
             android:layout_height="wrap_content"
             android:hint="Độ tuổi quy định"
             android:inputType="text"
-            android:layout_marginTop="8dp"/>
+            android:layout_marginTop="@dimen/item_margin"/>
 
         <EditText
             android:id="@+id/etAnhPoster"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Tên file ảnh poster (ví dụ: mario.jpg)"
+            android:hint="Tên file ảnh poster"
             android:inputType="text"
-            android:layout_marginTop="8dp"/>
+            android:layout_marginTop="@dimen/item_margin"/>
 
         <EditText
             android:id="@+id/etTrailerUrl"
@@ -72,7 +73,7 @@
             android:layout_height="wrap_content"
             android:hint="URL Trailer"
             android:inputType="textUri"
-            android:layout_marginTop="8dp"/>
+            android:layout_marginTop="@dimen/item_margin"/>
 
         <EditText
             android:id="@+id/etMoTa"
@@ -82,14 +83,14 @@
             android:inputType="textMultiLine"
             android:lines="3"
             android:gravity="top"
-            android:layout_marginTop="8dp"/>
+            android:layout_marginTop="@dimen/item_margin"/>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="end"
-            android:layout_marginTop="24dp">
+            android:layout_marginTop="@dimen/content_spacing">
 
             <Button
                 android:id="@+id/btnCancel"
@@ -106,7 +107,7 @@
                 android:text="Lưu"
                 android:backgroundTint="#00529C"
                 android:textColor="#FFFFFF"
-                android:layout_marginStart="8dp"/>
+                android:layout_marginStart="@dimen/item_margin"/>
         </LinearLayout>
     </LinearLayout>
 </ScrollView>
