@@ -5,4 +5,6 @@
     <string name="now_playing">Đang chiếu</string>
     <string name="coming_soon">Sắp chiếu</string>
     <string name="hot_movies">Phim HOT !!!</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
