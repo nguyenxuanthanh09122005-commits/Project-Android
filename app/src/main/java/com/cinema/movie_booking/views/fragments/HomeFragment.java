@@ -1,8 +1,5 @@
 package com.cinema.movie_booking.views.fragments;
 
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,10 +10,12 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.cinema.movie_booking.R;
 import com.cinema.movie_booking.adapters.ViewPagerMovieAdapter;
+import com.cinema.movie_booking.viewmodels.UserViewModel;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
@@ -24,103 +23,91 @@ public class HomeFragment extends Fragment {
 
     private TabLayout tabLayout;
     private ViewPager2 viewPager2;
-
     private Button btnLogin;
-
     private TextView txtHello;
+    private UserViewModel userViewModel;
 
     @Nullable
     @Override
-    public View onCreateView(
-            @NonNull LayoutInflater inflater,
-            @Nullable ViewGroup container,
-            @Nullable Bundle savedInstanceState) {
-
-        View view = inflater.inflate(
-                R.layout.fragment_home,
-                container,
-                false);
-
-        initViews(view);
-
-        setupUser();
-
-        setupViewPager();
-
-        return view;
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_home, container, false);
     }
 
-    private void initViews(View view){
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        initViews(view);
+        setupViewModel();
+        setupUser();
+        setupViewPager();
+    }
 
+    private void initViews(View view) {
         tabLayout = view.findViewById(R.id.tabLayout);
-
         viewPager2 = view.findViewById(R.id.viewPagerMovie);
-
         btnLogin = view.findViewById(R.id.btnLogin);
-
         txtHello = view.findViewById(R.id.txtHello);
     }
 
-    private void setupUser(){
-
-        SharedPreferences prefs =
-                requireActivity()
-                        .getSharedPreferences(
-                                "USER_FILE",
-                                Context.MODE_PRIVATE);
-
-        String fullName =
-                prefs.getString("FULL_NAME", "");
-
-        if(fullName.isEmpty()){
-
-            btnLogin.setVisibility(View.VISIBLE);
-
-            txtHello.setVisibility(View.GONE);
-        }
-        else{
-
-            btnLogin.setVisibility(View.GONE);
-
-            txtHello.setVisibility(View.VISIBLE);
-
-            txtHello.setText("Chào " + fullName);
-        }
-//        btnLogin.setOnClickListener(v -> {
-//
-//            Intent intent =
-//                    new Intent(
-//                            requireContext(),
-//                            LoginActivity.class);
-//
-//            startActivity(intent);
-//        });
+    private void setupViewModel() {
+        userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
     }
 
-    private void setupViewPager(){
+    private void setupUser() {
+        userViewModel.getUserFullName().observe(getViewLifecycleOwner(), fullName -> {
+            if (!isAdded() || getView() == null) return;
+
+            boolean isLoggedIn = fullName != null && !fullName.trim().isEmpty();
+
+            btnLogin.setVisibility(isLoggedIn ? View.GONE : View.VISIBLE);
+            txtHello.setVisibility(isLoggedIn ? View.VISIBLE : View.GONE);
+
+            if (isLoggedIn) {
+                txtHello.setText("Chào " + fullName);
+            }
+        });
+    }
+
+    private void setupViewPager() {
 
         ViewPagerMovieAdapter adapter =
                 new ViewPagerMovieAdapter(this);
 
         viewPager2.setAdapter(adapter);
 
+        // Defer setting offscreen page limit to avoid blocking the main thread during initial startup rendering
+        viewPager2.post(() -> {
+            if (isAdded() && viewPager2 != null) {
+                viewPager2.setOffscreenPageLimit(1);
+            }
+        });
+
         new TabLayoutMediator(
                 tabLayout,
                 viewPager2,
                 (tab, position) -> {
 
-                    if(position == 0){
-                        tab.setText("Sắp chiếu");
-                    }
-                    else if(position == 1){
-                        tab.setText("Đang chiếu");
-                    }
-                    else{
-                        tab.setText("Suất chiếu sớm");
-                    }
-                }).attach();
+                    switch(position){
 
-        viewPager2.setCurrentItem(1, false);
+                        case 0:
+                            tab.setText("Sắp chiếu");
+                            break;
+
+                        case 1:
+                            tab.setText("Đang chiếu");
+                            break;
+
+                        case 2:
+                            tab.setText("Suất chiếu sớm");
+                            break;
+                    }
+
+                }
+        ).attach();
+
+        viewPager2.setCurrentItem(
+                1,
+                false
+        );
     }
-
 }

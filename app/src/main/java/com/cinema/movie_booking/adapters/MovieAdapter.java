@@ -1,6 +1,7 @@
 package com.cinema.movie_booking.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,31 +9,36 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.cinema.movie_booking.BuildConfig;
 import com.cinema.movie_booking.R;
 import com.cinema.movie_booking.models.Movie;
-
-import java.util.List;
+import com.cinema.movie_booking.views.activities.MovieDetailActivity;
 
 public class MovieAdapter
-        extends RecyclerView.Adapter<MovieAdapter.MovieViewHolder>{
+        extends ListAdapter<Movie, MovieAdapter.MovieViewHolder> {
 
-    private final Context context;
+    private static final String IMAGE_URL = BuildConfig.IMAGE_URL;
 
-    private final List<Movie> movieList;
-
-    private static final String IMAGE_URL =
-            "http://192.168.1.20:8080/uploads/";
-
-    public MovieAdapter(
-            Context context,
-            List<Movie> movieList) {
-
-        this.context = context;
-        this.movieList = movieList;
+    public MovieAdapter() {
+        super(DIFF_CALLBACK);
     }
+
+    private static final DiffUtil.ItemCallback<Movie> DIFF_CALLBACK = new DiffUtil.ItemCallback<Movie>() {
+        @Override
+        public boolean areItemsTheSame(@NonNull Movie oldItem, @NonNull Movie newItem) {
+            return oldItem.getMovieId().equals(newItem.getMovieId());
+        }
+
+        @Override
+        public boolean areContentsTheSame(@NonNull Movie oldItem, @NonNull Movie newItem) {
+            return oldItem.equals(newItem);
+        }
+    };
 
     @NonNull
     @Override
@@ -41,7 +47,7 @@ public class MovieAdapter
             int viewType) {
 
         View view = LayoutInflater
-                .from(context)
+                .from(parent.getContext())
                 .inflate(
                         R.layout.item_movie,
                         parent,
@@ -55,7 +61,7 @@ public class MovieAdapter
             @NonNull MovieViewHolder holder,
             int position) {
 
-        Movie movie = movieList.get(position);
+        Movie movie = getItem(position);
 
         holder.txtMovieName.setText(
                 movie.getMovieName());
@@ -66,16 +72,29 @@ public class MovieAdapter
         holder.txtAge.setText(
                 movie.getAgeRating());
 
-        Glide.with(context)
+        Glide.with(holder.itemView.getContext())
                 .load(IMAGE_URL + movie.getPosterImage())
                 .placeholder(R.drawable.placeholder)
                 .error(R.drawable.placeholder)
                 .into(holder.imgPoster);
-    }
 
-    @Override
-    public int getItemCount() {
-        return movieList.size();
+        holder.itemView.setOnClickListener(v -> {
+            Context context = v.getContext();
+            Intent intent =
+                    new Intent(
+                            context,
+                            MovieDetailActivity.class);
+
+            intent.putExtra(
+                    "movieId",
+                    movie.getMovieId());
+
+            intent.putExtra(
+                    "movieName",
+                    movie.getMovieName());
+
+            context.startActivity(intent);
+        });
     }
 
     public static class MovieViewHolder
