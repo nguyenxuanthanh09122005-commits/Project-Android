@@ -6,9 +6,16 @@ import android.os.StrictMode;
 import java.util.concurrent.Executors;
 
 public class MovieApplication extends Application {
+    private static MovieApplication instance;
+
+    public static MovieApplication getAppContext() {
+        return instance;
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
+        instance = this;
 
         // Initialize Retrofit API client asynchronously on startup to avoid blocking the main thread
         Executors.newSingleThreadExecutor().execute(

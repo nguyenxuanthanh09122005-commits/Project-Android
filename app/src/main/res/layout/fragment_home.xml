@@ -7,40 +7,66 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <!-- TOP BAR -->
-
-    <RelativeLayout
+    <!-- TOP BAR / LOGIN PROMPT -->
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:padding="8dp">
+        android:layout_height="wrap_content"
+        android:layout_margin="12dp"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="4dp">
 
-        <Button
-            android:id="@+id/btnLogin"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:text="Đăng nhập"
-            android:layout_centerVertical="true"
-            android:backgroundTint="#336CFB"
-            android:textAllCaps="false"
-            android:textColor="@android:color/white"/>
-
-        <TextView
-            android:id="@+id/txtHello"
-            android:layout_width="wrap_content"
+        <RelativeLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:visibility="gone"/>
+            android:padding="16dp">
 
-        <ImageView
-            android:id="@+id/imgLogo"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_alignParentEnd="true"
-            android:src="@drawable/logo"/>
+            <LinearLayout
+                android:id="@+id/layoutUserInfo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_centerVertical="true">
 
-    </RelativeLayout>
+                <TextView
+                    android:id="@+id/txtHello"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Chào bạn!"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="#333333"/>
+
+                <TextView
+                    android:id="@+id/txtLoginSub"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Đăng nhập để nhận nhiều ưu đãi"
+                    android:textSize="14sp"
+                    android:textColor="#666666"/>
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btnLogin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:text="Đăng nhập"
+                android:backgroundTint="#336CFB"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"/>
+
+            <ImageView
+                android:id="@+id/imgAvatar"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:src="@drawable/logo"
+                android:visibility="gone"/>
+
+        </RelativeLayout>
+    </androidx.cardview.widget.CardView>
 
     <!-- TAB -->
 

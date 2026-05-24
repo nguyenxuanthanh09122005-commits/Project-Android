@@ -75,6 +75,7 @@ public class SeatAdapter extends RecyclerView.Adapter<SeatAdapter.SeatViewHolder
         }
 
         public void bind(Seat seat) {
+            // Hiển thị tên ghế (Đã xử lý null trong Seat.getSeatName())
             if (seat.isCouple() && seat.getPairId() != null) {
                 String partnerName = "";
                 for (Seat s : allSeats) {
@@ -88,16 +89,22 @@ public class SeatAdapter extends RecyclerView.Adapter<SeatAdapter.SeatViewHolder
                 txtSeatName.setText(seat.getSeatName());
             }
 
-            if ("BOOKED".equalsIgnoreCase(seat.getStatus())) {
+            // KIỂM TRA TRẠNG THÁI KHÓA (User khác đã đặt hoặc đang giữ)
+            if (seat.isLocked()) {
                 viewSeat.setBackgroundResource(R.drawable.bg_seat_booked);
-                itemView.setEnabled(false);
+                itemView.setEnabled(false); // CHẶN CLICK
+                itemView.setAlpha(0.5f);    // Làm mờ để dễ nhận biết
                 txtSeatName.setTextColor(0xFFFFFFFF);
             } else if (seat.isSelected()) {
+                // Ghế đang được bạn chọn
                 viewSeat.setBackgroundResource(R.drawable.bg_seat_selected);
                 itemView.setEnabled(true);
+                itemView.setAlpha(1.0f);
                 txtSeatName.setTextColor(0xFFFFFFFF);
             } else {
+                // Ghế trống có thể chọn
                 itemView.setEnabled(true);
+                itemView.setAlpha(1.0f);
                 txtSeatName.setTextColor(0xFF757575);
                 if (seat.isCouple()) {
                     viewSeat.setBackgroundResource(R.drawable.bg_seat_couple);

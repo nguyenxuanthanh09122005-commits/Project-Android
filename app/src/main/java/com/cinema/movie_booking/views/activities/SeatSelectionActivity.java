@@ -1,5 +1,6 @@
 package com.cinema.movie_booking.views.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,7 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.cinema.movie_booking.R;
 import com.cinema.movie_booking.adapters.SeatAdapter;
 import com.cinema.movie_booking.models.Seat;
-import com.cinema.movie_booking.models.SeatLayoutResponse;
+import com.cinema.movie_booking.repositories.SeatRepository;
 import com.cinema.movie_booking.utils.Resource;
 import com.cinema.movie_booking.viewmodels.SeatViewModel;
 import com.google.android.material.appbar.MaterialToolbar;
@@ -37,6 +38,7 @@ public class SeatSelectionActivity extends AppCompatActivity {
     private SeatViewModel viewModel;
     private TextView txtSelectedSeats, txtTotalPrice;
     private MaterialButton btnConfirm;
+    private ProgressBar progressBar;
     
     private List<Seat> selectedSeats = new ArrayList<>();
     private List<Seat> allSeats = new ArrayList<>();
@@ -69,9 +71,12 @@ public class SeatSelectionActivity extends AppCompatActivity {
         txtSelectedSeats = findViewById(R.id.txtSelectedSeats);
         txtTotalPrice = findViewById(R.id.txtTotalPrice);
         btnConfirm = findViewById(R.id.btnConfirm);
+        progressBar = findViewById(R.id.progressBar);
 
         seatAdapter = new SeatAdapter(this::onSeatSelected);
         recyclerSeats.setAdapter(seatAdapter);
+
+        btnConfirm.setOnClickListener(v -> handleConfirm());
     }
 
     private void setupViewModel() {
@@ -80,38 +85,122 @@ public class SeatSelectionActivity extends AppCompatActivity {
         viewModel.getBookingSummary().observe(this, summary -> {
             txtSelectedSeats.setText(summary.seatNames);
             txtTotalPrice.setText(summary.totalPrice);
+            btnConfirm.setEnabled(!selectedSeats.isEmpty());
         });
+
+        viewModel.getBookingResult().observe(this, resource -> {
+            if (resource == null) return;
+            switch (resource.status) {
+                case LOADING:
+                    setLoading(true);
+                    break;
+                case SUCCESS:
+                    setLoading(false);
+                    Toast.makeText(this, "Đang khởi tạo thanh toán...", Toast.LENGTH_SHORT).show();
+                    
+                    SeatRepository.BookingSummary summary = viewModel.getBookingSummary().getValue();
+                    Intent intent = new Intent(this, PaymentActivity.class);
+                    intent.putExtra("movieName", movieName);
+                    intent.putExtra("cinemaInfo", cinemaName);
+                    intent.putExtra("seatInfo", summary != null ? summary.seatNames : "");
+                    intent.putExtra("totalPrice", summary != null ? summary.totalPrice : "0đ");
+                    startActivity(intent);
+                    break;
+                case ERROR:
+                    setLoading(false);
+                    Toast.makeText(this, "Lỗi đặt vé: " + resource.message, Toast.LENGTH_LONG).show();
+                    break;
+            }
+        });
+    }
+
+    private void setLoading(boolean isLoading) {
+        progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+        btnConfirm.setEnabled(!isLoading && !selectedSeats.isEmpty());
+    }
+
+    private void handleConfirm() {
+        SeatRepository.BookingSummary summary = viewModel.getBookingSummary().getValue();
+        if (summary != null && !summary.seatIds.isEmpty()) {
+            // Chuyển sang gọi createBooking thay vì lockSeats
+            viewModel.createBooking(showtimeId, summary.seatIds);
+        } else {
+            Toast.makeText(this, "Vui lòng chọn ghế", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void loadData() {
+        if (showtimeId == null || showtimeId == -1) {
+            Toast.makeText(this, "Lỗi: Không tìm thấy thông tin suất chiếu", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
         viewModel.getSeatLayout(showtimeId).observe(this, resource -> {
-            if (resource.status == Resource.Status.SUCCESS && resource.data != null) {
-                this.allSeats = resource.data.getRawSeats();
-                setupGridLayout(resource.data);
-                seatAdapter.setData(resource.data.getSeats(), allSeats);
-            } else if (resource.status == Resource.Status.ERROR) {
-                Toast.makeText(this, resource.message, Toast.LENGTH_SHORT).show();
+            if (resource == null) return;
+
+            switch (resource.status) {
+                case LOADING:
+                    break;
+                case SUCCESS:
+                    if (resource.data != null && !resource.data.isEmpty()) {
+                        this.allSeats = resource.data;
+                        List<Seat> displaySeats = processSeats(resource.data);
+                        setupGridLayout(displaySeats);
+                        seatAdapter.setData(displaySeats, allSeats);
+                    } else {
+                        Toast.makeText(this, "Phòng chiếu này hiện chưa có sơ đồ ghế", Toast.LENGTH_LONG).show();
+                    }
+                    break;
+                case ERROR:
+                    String errorMsg = resource.message;
+                    if (errorMsg != null && errorMsg.contains("500")) {
+                        errorMsg = "Lỗi Server (500): Suất chiếu chưa có phòng hoặc ghế. Hãy kiểm tra lại Database Backend.";
+                    }
+                    Toast.makeText(this, errorMsg, Toast.LENGTH_LONG).show();
+                    break;
             }
         });
     }
 
-    private void setupGridLayout(SeatLayoutResponse data) {
-        int columns = data.getTotalColumns();
-        GridLayoutManager layoutManager = new GridLayoutManager(this, columns);
+    private List<Seat> processSeats(List<Seat> rawSeats) {
+        List<Seat> processed = new ArrayList<>();
+        List<Long> addedPairIds = new ArrayList<>();
+        for (Seat seat : rawSeats) {
+            if (seat.isCouple() && seat.getPairId() != null) {
+                if (!addedPairIds.contains(seat.getPairId())) {
+                    processed.add(seat);
+                    addedPairIds.add(seat.getPairId());
+                }
+            } else {
+                processed.add(seat);
+            }
+        }
+        return processed;
+    }
+
+    private void setupGridLayout(List<Seat> displaySeats) {
+        int maxCol = 1;
+        for (Seat s : allSeats) {
+            if (s.getSeatNumber() > maxCol) maxCol = s.getSeatNumber();
+        }
         
+        GridLayoutManager layoutManager = new GridLayoutManager(this, maxCol);
         layoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
             @Override
             public int getSpanSize(int position) {
-                Seat seat = data.getSeats().get(position);
-                return seat.isCouple() ? 2 : 1;
+                if (position < displaySeats.size()) {
+                    return displaySeats.get(position).isCouple() ? 2 : 1;
+                }
+                return 1;
             }
         });
-        
         recyclerSeats.setLayoutManager(layoutManager);
     }
 
     private void onSeatSelected(Seat seat) {
-        if ("BOOKED".equalsIgnoreCase(seat.getStatus())) return;
+        // Sử dụng isLocked() để chặn cả ghế đã đặt (BOOKED) và ghế đang bị khóa (LOCKED/locked=true)
+        if (seat.isLocked()) return;
 
         boolean isSelected = !seat.isSelected();
         

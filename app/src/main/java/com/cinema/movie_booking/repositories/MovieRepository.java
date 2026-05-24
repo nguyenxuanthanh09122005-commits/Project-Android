@@ -12,13 +12,16 @@ import com.cinema.movie_booking.models.MovieShowtimeResponse;
 import com.cinema.movie_booking.models.Showtime;
 import com.cinema.movie_booking.utils.Resource;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -141,13 +144,13 @@ public class MovieRepository {
         return data;
     }
 
-    public LiveData<Resource<List<MovieShowtimeResponse>>> getMovieShowtimes(Long movieId, String city, String date) {
-        MutableLiveData<Resource<List<MovieShowtimeResponse>>> data = new MutableLiveData<>();
+    public LiveData<Resource<List<Showtime>>> getMovieShowtimes(Long movieId, String city, String date) {
+        MutableLiveData<Resource<List<Showtime>>> data = new MutableLiveData<>();
         data.setValue(Resource.loading(null));
 
-        RetrofitClient.getApiService().getMovieShowtimes(movieId, city, date).enqueue(new Callback<List<MovieShowtimeResponse>>() {
+        RetrofitClient.getApiService().getMovieShowtimes(movieId, city, date).enqueue(new Callback<List<Showtime>>() {
             @Override
-            public void onResponse(@NonNull Call<List<MovieShowtimeResponse>> call, @NonNull Response<List<MovieShowtimeResponse>> response) {
+            public void onResponse(@NonNull Call<List<Showtime>> call, @NonNull Response<List<Showtime>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     data.postValue(Resource.success(response.body()));
                 } else {
@@ -156,7 +159,7 @@ public class MovieRepository {
             }
 
             @Override
-            public void onFailure(@NonNull Call<List<MovieShowtimeResponse>> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<List<Showtime>> call, @NonNull Throwable t) {
                 data.postValue(Resource.error(t.getMessage(), null));
             }
         });
@@ -164,47 +167,77 @@ public class MovieRepository {
     }
 
     public List<CinemaGroup> processAndGroupShowtimes(
-            List<MovieShowtimeResponse> responseList,
+            List<Showtime> responseList,
             String selectedDate,
             String selectedCinema,
             String movieName
     ) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-        SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm", Locale.getDefault());
+        // Date formatters
+        SimpleDateFormat inputFormatISO = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
+        SimpleDateFormat inputFormatSpace = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        SimpleDateFormat inputFormatISOShort = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm", Locale.getDefault());
+        SimpleDateFormat inputFormatSpaceShort = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
         
-        String todayStr = dateFormat.format(new Date());
-        String nowStr = dateTimeFormat.format(new Date());
+        // Output format to normalize for comparison
+        SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+        
+        // Backend stores in UTC, app needs to show in GMT+7.
+        // If we want to fix the "7 hours off" issue, we treat input as UTC
+        inputFormatISO.setTimeZone(TimeZone.getTimeZone("UTC"));
+        inputFormatSpace.setTimeZone(TimeZone.getTimeZone("UTC"));
+        inputFormatISOShort.setTimeZone(TimeZone.getTimeZone("UTC"));
+        inputFormatSpaceShort.setTimeZone(TimeZone.getTimeZone("UTC"));
+        
+        // Current local time
+        Date now = new Date();
+        SimpleDateFormat dayFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        String todayStr = dayFormat.format(now);
 
         List<Showtime> filteredList = new ArrayList<>();
 
         if (responseList != null) {
-            for (MovieShowtimeResponse res : responseList) {
-                if (res.getShowtimes() != null) {
-                    for (MovieShowtimeResponse.ShowtimeInfo info : res.getShowtimes()) {
-                        
-                        if (selectedCinema != null && !selectedCinema.equals("Tất cả rạp")) {
-                            if (res.getCinemaName() == null || !res.getCinemaName().equals(selectedCinema)) continue;
+            for (Showtime s : responseList) {
+                // 1. Lọc theo rạp nếu chọn rạp cụ thể
+                if (selectedCinema != null && !selectedCinema.equals("Tất cả rạp") && !selectedCinema.isEmpty()) {
+                    if (s.getCinemaName() == null || !s.getCinemaName().equals(selectedCinema)) continue;
+                }
+
+                String startTimeStr = s.getStartTime();
+                String endTimeStr = s.getEndTime();
+                
+                if (startTimeStr == null) continue;
+
+                try {
+                    Date startDate = parseDate(startTimeStr, inputFormatISO, inputFormatSpace, inputFormatISOShort, inputFormatSpaceShort);
+                    Date endDate = (endTimeStr != null) ? parseDate(endTimeStr, inputFormatISO, inputFormatSpace, inputFormatISOShort, inputFormatSpaceShort) : startDate;
+
+                    if (startDate == null) continue;
+
+                    // Normalize dates to local timezone for display and filtering
+                    String localStart = outputFormat.format(startDate);
+                    String localEnd = outputFormat.format(endDate);
+                    
+                    // Update the showtime objects with local time strings for the Adapter to use
+                    s.setStartTime(localStart);
+                    s.setEndTime(localEnd);
+
+                    // 2. Lọc theo ngày (chỉ lấy phần yyyy-MM-dd của localStart)
+                    if (!localStart.startsWith(selectedDate)) continue;
+
+                    // 3. Lọc suất chiếu đã qua trong ngày hiện tại
+                    if (selectedDate.equals(todayStr)) {
+                        if (endDate != null && endDate.before(now)) {
+                            continue;
                         }
+                    }
 
-                        String startTime = info.getStartTime();
-                        String endTime = info.getEndTime();
-
-                        if (startTime != null && startTime.contains("-")) {
-                            if (!startTime.startsWith(selectedDate)) continue;
-                        }
-
-                        if (selectedDate.equals(todayStr)) {
-                            if (endTime != null && endTime.contains("-") && endTime.compareTo(nowStr) <= 0) {
-                                continue;
-                            }
-                        }
-
-                        Showtime s = new Showtime(
-                                info.getId(), info.getStartTime(), info.getEndTime(),
-                                res.getCinemaName(), res.getRoomName(), res.getCinemaId()
-                        );
+                    s.setMovieName(movieName);
+                    filteredList.add(s);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    // Fallback to original logic if parsing fails
+                    if (startTimeStr.startsWith(selectedDate)) {
                         s.setMovieName(movieName);
-                        s.setBaseTicketPrice(info.getBasePrice() != null ? info.getBasePrice() : 0.0);
                         filteredList.add(s);
                     }
                 }
@@ -231,6 +264,15 @@ public class MovieRepository {
         }
 
         return cinemaGroups;
+    }
+
+    private Date parseDate(String dateStr, SimpleDateFormat... formats) {
+        for (SimpleDateFormat format : formats) {
+            try {
+                return format.parse(dateStr);
+            } catch (ParseException ignored) {}
+        }
+        return null;
     }
 
     public String getYoutubeThumbnail(String url) {

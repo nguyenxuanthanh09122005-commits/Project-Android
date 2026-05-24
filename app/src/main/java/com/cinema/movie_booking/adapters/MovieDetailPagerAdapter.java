@@ -11,17 +11,19 @@ public class MovieDetailPagerAdapter extends FragmentStateAdapter {
     private final Long movieId;
     private final String movieName;
 
-    public MovieDetailPagerAdapter(@NonNull FragmentActivity fragmentActivity, Long movieId, String movieName) {
+    private final Long cinemaId;
+    public MovieDetailPagerAdapter(@NonNull FragmentActivity fragmentActivity, Long movieId, String movieName, Long cinemaId) {
         super(fragmentActivity);
         this.movieId = movieId;
         this.movieName = movieName;
+        this.cinemaId = cinemaId;
     }
 
     @NonNull
     @Override
     public Fragment createFragment(int position) {
         if (position == 0) {
-            return ShowtimeFragment.newInstance(movieId, movieName);
+            return ShowtimeFragment.newInstance(movieId, movieName, cinemaId);
         }
         return MovieInfoFragment.newInstance(movieId);
     }

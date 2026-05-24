@@ -24,7 +24,8 @@ public class HomeFragment extends Fragment {
     private TabLayout tabLayout;
     private ViewPager2 viewPager2;
     private Button btnLogin;
-    private TextView txtHello;
+    private TextView txtHello, txtLoginSub;
+    private android.widget.ImageView imgAvatar;
     private UserViewModel userViewModel;
 
     @Nullable
@@ -47,6 +48,13 @@ public class HomeFragment extends Fragment {
         viewPager2 = view.findViewById(R.id.viewPagerMovie);
         btnLogin = view.findViewById(R.id.btnLogin);
         txtHello = view.findViewById(R.id.txtHello);
+        txtLoginSub = view.findViewById(R.id.txtLoginSub);
+        imgAvatar = view.findViewById(R.id.imgAvatar);
+
+        btnLogin.setOnClickListener(v -> {
+            android.content.Intent intent = new android.content.Intent(requireContext(), com.cinema.movie_booking.views.activities.LoginActivity.class);
+            startActivity(intent);
+        });
     }
 
     private void setupViewModel() {
@@ -60,10 +68,13 @@ public class HomeFragment extends Fragment {
             boolean isLoggedIn = fullName != null && !fullName.trim().isEmpty();
 
             btnLogin.setVisibility(isLoggedIn ? View.GONE : View.VISIBLE);
-            txtHello.setVisibility(isLoggedIn ? View.VISIBLE : View.GONE);
+            txtLoginSub.setVisibility(isLoggedIn ? View.GONE : View.VISIBLE);
+            imgAvatar.setVisibility(isLoggedIn ? View.VISIBLE : View.GONE);
 
             if (isLoggedIn) {
                 txtHello.setText("Chào " + fullName);
+            } else {
+                txtHello.setText("Chào bạn!");
             }
         });
     }

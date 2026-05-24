@@ -10,6 +10,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -36,9 +37,11 @@ import java.util.Locale;
 public class ShowtimeFragment extends Fragment {
 
     private static final String KEY_ID = "movieId";
+    private static final String KEY_CINEMA_ID = "cinemaId";
 
     private Long movieId;
     private String movieName;
+    private Long preSelectedCinemaId;
 
     private RecyclerView cinemaList;
     private RecyclerView dateSelector;
@@ -67,7 +70,8 @@ public class ShowtimeFragment extends Fragment {
 
     public static ShowtimeFragment newInstance(
             Long movieId,
-            String movieName
+            String movieName,
+            Long cinemaId
     ) {
         ShowtimeFragment fragment =
                 new ShowtimeFragment();
@@ -79,6 +83,9 @@ public class ShowtimeFragment extends Fragment {
                 "movieName",
                 movieName
         );
+        if (cinemaId != null) {
+            bundle.putLong(KEY_CINEMA_ID, cinemaId);
+        }
 
         fragment.setArguments(bundle);
 
@@ -117,6 +124,9 @@ public class ShowtimeFragment extends Fragment {
                     getArguments().getString(
                             "movieName"
                     );
+            if (getArguments().containsKey(KEY_CINEMA_ID)) {
+                preSelectedCinemaId = getArguments().getLong(KEY_CINEMA_ID);
+            }
         }
 
         initViews(view);
@@ -173,6 +183,17 @@ public class ShowtimeFragment extends Fragment {
 
                             if (!isAdded())
                                 return;
+
+                            // Check if user is logged in
+                            String token = requireContext().getSharedPreferences("auth_prefs", android.content.Context.MODE_PRIVATE)
+                                    .getString("auth_token", null);
+
+                            if (token == null || token.isEmpty()) {
+                                Toast.makeText(requireContext(), "Vui lòng đăng nhập để tiếp tục đặt vé", Toast.LENGTH_SHORT).show();
+                                Intent loginIntent = new Intent(requireContext(), com.cinema.movie_booking.views.activities.LoginActivity.class);
+                                startActivity(loginIntent);
+                                return;
+                            }
 
                             Intent intent =
                                     new Intent(
@@ -372,6 +393,17 @@ public class ShowtimeFragment extends Fragment {
                                 allCinemas =
                                         resource.data;
 
+                                if (preSelectedCinemaId != null) {
+                                    for (CinemaResponse cinema : allCinemas) {
+                                        if (cinema.getCinemaId().equals(preSelectedCinemaId)) {
+                                            selectedCity = cinema.getCity();
+                                            selectedCinema = cinema.getCinemaName();
+                                            preSelectedCinemaId = null;
+                                            break;
+                                        }
+                                    }
+                                }
+
                                 updateCityFilterOptions();
                                 updateCinemaFilterOptions();
                             }
@@ -542,11 +574,9 @@ public class ShowtimeFragment extends Fragment {
                 adapter
         );
 
-        selectedCinema =
-                "Tất cả rạp";
-
+        int pos = names.indexOf(selectedCinema);
         cinemaFilter.setSelection(
-                0,
+                pos >= 0 ? pos : 0,
                 false
         );
     }

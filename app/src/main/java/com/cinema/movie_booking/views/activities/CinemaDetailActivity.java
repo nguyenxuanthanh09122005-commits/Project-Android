@@ -120,6 +120,17 @@ public class CinemaDetailActivity
                 .setOnShowtimeClickListener(
                         (movie, showtime) -> {
 
+                            // Check if user is logged in
+                            String token = getSharedPreferences("auth_prefs", MODE_PRIVATE)
+                                    .getString("auth_token", null);
+
+                            if (token == null || token.isEmpty()) {
+                                android.widget.Toast.makeText(this, "Vui lòng đăng nhập để tiếp tục đặt vé", android.widget.Toast.LENGTH_SHORT).show();
+                                Intent loginIntent = new Intent(this, LoginActivity.class);
+                                startActivity(loginIntent);
+                                return;
+                            }
+
                             Intent intent =
                                     new Intent(
                                             this,

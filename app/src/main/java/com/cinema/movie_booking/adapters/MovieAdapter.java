@@ -57,20 +57,12 @@ public class MovieAdapter
     }
 
     @Override
-    public void onBindViewHolder(
-            @NonNull MovieViewHolder holder,
-            int position) {
-
+    public void onBindViewHolder(@NonNull MovieViewHolder holder, int position) {
         Movie movie = getItem(position);
 
-        holder.txtMovieName.setText(
-                movie.getMovieName());
-
-        holder.txtDuration.setText(
-                movie.getDuration() + " phút");
-
-        holder.txtAge.setText(
-                movie.getAgeRating());
+        holder.txtMovieName.setText(movie.getMovieName());
+        holder.txtDuration.setText(movie.getDuration() + " phút");
+        holder.txtAge.setText(movie.getAgeRating());
 
         Glide.with(holder.itemView.getContext())
                 .load(IMAGE_URL + movie.getPosterImage())
@@ -78,20 +70,24 @@ public class MovieAdapter
                 .error(R.drawable.placeholder)
                 .into(holder.imgPoster);
 
+        // SỬA ĐOẠN CLICK TẠI ĐÂY
         holder.itemView.setOnClickListener(v -> {
             Context context = v.getContext();
-            Intent intent =
-                    new Intent(
-                            context,
-                            MovieDetailActivity.class);
+            Intent intent = new Intent(context, MovieDetailActivity.class);
 
-            intent.putExtra(
-                    "movieId",
-                    movie.getMovieId());
+            intent.putExtra("movieId", movie.getMovieId());
+            intent.putExtra("movieName", movie.getMovieName());
 
-            intent.putExtra(
-                    "movieName",
-                    movie.getMovieName());
+            // 1. Đọc dữ liệu thành phố người dùng đã chọn từ SharedPreferences
+            // (CinemaPrefs là tên file xml cấu hình lưu dữ liệu từ CinemaFragment bước trước)
+            android.content.SharedPreferences prefs = context.getSharedPreferences(
+                    "CinemaPrefs",
+                    Context.MODE_PRIVATE
+            );
+            String selectedCity = prefs.getString("selected_city", "Hanoi"); // Mặc định là Hanoi nếu kho trống
+
+            // 2. Đính kèm tham số thành phố vào intent gửi đi
+            intent.putExtra("city", selectedCity);
 
             context.startActivity(intent);
         });

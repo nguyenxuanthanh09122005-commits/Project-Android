@@ -3,7 +3,7 @@ package com.cinema.movie_booking.repositories;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-
+import com.cinema.movie_booking.models.MovieShowtimeResponse;
 import com.cinema.movie_booking.api.RetrofitClient;
 import com.cinema.movie_booking.models.Showtime;
 import com.cinema.movie_booking.utils.Resource;
@@ -19,6 +19,7 @@ public class ShowtimeRepository {
     private final List<Call<?>> runningCalls =
             new ArrayList<>();
 
+    // Trong ShowtimeRepository.java
     public LiveData<Resource<List<Showtime>>> getShowtimes(Long movieId, Long cinemaId, String date) {
         MutableLiveData<Resource<List<Showtime>>> data = new MutableLiveData<>();
         data.setValue(Resource.loading(null));

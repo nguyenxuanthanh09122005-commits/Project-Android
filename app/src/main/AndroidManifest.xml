@@ -26,6 +26,12 @@
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <activity
+            android:name=".views.activities.PaymentActivity"
+            android:exported="false" />
+        <activity
+            android:name=".views.activities.LoginActivity"
+            android:exported="true" />
+        <activity
             android:name=".views.activities.MainActivity"
             android:exported="true">
             <intent-filter>

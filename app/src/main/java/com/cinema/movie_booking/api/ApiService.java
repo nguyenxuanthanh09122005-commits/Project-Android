@@ -1,8 +1,12 @@
 package com.cinema.movie_booking.api;
 
+import com.cinema.movie_booking.models.BookingRequest;
+import com.cinema.movie_booking.models.BookingResponse;
 import com.cinema.movie_booking.models.CinemaMovieResponse;
 import com.cinema.movie_booking.models.CinemaResponse;
 import com.cinema.movie_booking.models.Genre;
+import com.cinema.movie_booking.models.LoginRequest;
+import com.cinema.movie_booking.models.LoginResponse;
 import com.cinema.movie_booking.models.Movie;
 import com.cinema.movie_booking.models.MovieShowtimeResponse;
 import com.cinema.movie_booking.models.SeatLayoutResponse;
@@ -21,6 +25,17 @@ import retrofit2.http.Query;
 
 public interface ApiService {
 
+    // ================= AUTH =================
+
+    @POST("api/auth/login")
+    Call<LoginResponse> login(@Body LoginRequest request);
+
+
+    @POST("api/auth/register")
+    Call<Void> register(@Body com.cinema.movie_booking.models.RegisterRequest request);
+
+
+
     // ================= MOVIE =================
 
     @GET("api/movies")
@@ -33,9 +48,9 @@ public interface ApiService {
             @Path("movieId") Long movieId
     );
 
-    @GET("api/movies/{movieId}/showtimes")
-    Call<List<MovieShowtimeResponse>> getMovieShowtimes(
-            @Path("movieId") Long movieId,
+    @GET("api/showtimes")
+    Call<List<Showtime>> getMovieShowtimes(
+            @Query("movieId") Long movieId,
             @Query("city") String city,
             @Query("date") String date
     );
@@ -77,8 +92,8 @@ public interface ApiService {
             @Path("showtimeId") Long showtimeId
     );
 
-    @GET("api/showtimes/{showtimeId}/seat-layout")
-    Call<SeatLayoutResponse> getSeatLayout(
+    @GET("api/showtimes/{showtimeId}/seats")
+    Call<List<com.cinema.movie_booking.models.Seat>> getSeatLayout(
             @Path("showtimeId") Long showtimeId
     );
 
@@ -87,5 +102,13 @@ public interface ApiService {
             @Path("showtimeId") Long showtimeId,
             @Body SeatLockRequest request
     );
+
+    @POST("api/bookings")
+    Call<BookingResponse> createBooking(
+            @Body BookingRequest request
+    );
+
+    @GET("api/bookings")
+    Call<List<BookingResponse>> getMyBookings();
 
 }

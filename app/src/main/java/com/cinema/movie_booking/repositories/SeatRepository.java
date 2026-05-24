@@ -5,10 +5,9 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.cinema.movie_booking.api.RetrofitClient;
+import com.cinema.movie_booking.models.BookingRequest;
+import com.cinema.movie_booking.models.BookingResponse;
 import com.cinema.movie_booking.models.Seat;
-import com.cinema.movie_booking.models.SeatLayoutResponse;
-import com.cinema.movie_booking.models.SeatLockRequest;
-import com.cinema.movie_booking.models.SeatLockResponse;
 import com.cinema.movie_booking.utils.Resource;
 
 import java.text.DecimalFormat;
@@ -22,46 +21,57 @@ import retrofit2.Response;
 
 public class SeatRepository {
 
-    public LiveData<Resource<SeatLayoutResponse>> getSeatLayout(Long showtimeId) {
-        MutableLiveData<Resource<SeatLayoutResponse>> data = new MutableLiveData<>();
+    public LiveData<Resource<List<Seat>>> getSeatLayout(Long showtimeId) {
+        MutableLiveData<Resource<List<Seat>>> data = new MutableLiveData<>();
         data.setValue(Resource.loading(null));
 
-        RetrofitClient.getApiService().getSeatLayout(showtimeId).enqueue(new Callback<SeatLayoutResponse>() {
+        RetrofitClient.getApiService().getSeatLayout(showtimeId).enqueue(new Callback<List<Seat>>() {
             @Override
-            public void onResponse(@NonNull Call<SeatLayoutResponse> call, @NonNull Response<SeatLayoutResponse> response) {
+            public void onResponse(@NonNull Call<List<Seat>> call, @NonNull Response<List<Seat>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     data.postValue(Resource.success(response.body()));
                 } else {
-                    data.postValue(Resource.error("Failed to load seat layout", null));
+                    String errorMsg = "Lỗi hệ thống";
+                    try {
+                        if (response.errorBody() != null) {
+                            errorMsg = response.errorBody().string();
+                        }
+                    } catch (Exception ignored) {}
+                    
+                    if (response.code() == 500) {
+                        data.postValue(Resource.error("Lỗi Server (500): Có thể Suất chiếu này chưa được gắn Phòng hoặc chưa có Ghế trong DB.", null));
+                    } else {
+                        data.postValue(Resource.error("Lỗi " + response.code() + ": " + errorMsg, null));
+                    }
                 }
             }
 
             @Override
-            public void onFailure(@NonNull Call<SeatLayoutResponse> call, @NonNull Throwable t) {
-                data.postValue(Resource.error(t.getMessage(), null));
+            public void onFailure(@NonNull Call<List<Seat>> call, @NonNull Throwable t) {
+                data.postValue(Resource.error("Lỗi kết nối: " + t.getMessage(), null));
             }
         });
         return data;
     }
 
-    public LiveData<Resource<SeatLockResponse>> lockSeats(Long showtimeId, List<Long> seatIds) {
-        MutableLiveData<Resource<SeatLockResponse>> data = new MutableLiveData<>();
+    public LiveData<Resource<BookingResponse>> createBooking(Long showtimeId, List<Long> seatIds) {
+        MutableLiveData<Resource<BookingResponse>> data = new MutableLiveData<>();
         data.setValue(Resource.loading(null));
 
-        SeatLockRequest request = new SeatLockRequest(seatIds);
-        RetrofitClient.getApiService().lockSeats(showtimeId, request).enqueue(new Callback<SeatLockResponse>() {
+        BookingRequest request = new BookingRequest(showtimeId, seatIds);
+        RetrofitClient.getApiService().createBooking(request).enqueue(new Callback<BookingResponse>() {
             @Override
-            public void onResponse(@NonNull Call<SeatLockResponse> call, @NonNull Response<SeatLockResponse> response) {
+            public void onResponse(@NonNull Call<BookingResponse> call, @NonNull Response<BookingResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     data.postValue(Resource.success(response.body()));
                 } else {
-                    data.postValue(Resource.error("Failed to lock seats", null));
+                    data.postValue(Resource.error("Đặt vé thất bại: " + response.code(), null));
                 }
             }
 
             @Override
-            public void onFailure(@NonNull Call<SeatLockResponse> call, @NonNull Throwable t) {
-                data.postValue(Resource.error(t.getMessage(), null));
+            public void onFailure(@NonNull Call<BookingResponse> call, @NonNull Throwable t) {
+                data.postValue(Resource.error("Lỗi kết nối: " + t.getMessage(), null));
             }
         });
         return data;
@@ -85,6 +95,7 @@ public class SeatRepository {
             if (type != null) {
                 switch (type.toUpperCase(Locale.ROOT)) {
                     case "VIP": seatPrice *= 1.2; break;
+//                    case "COUPLE": seatPrice *= 2.0; break;
                     default: break;
                 }
             }

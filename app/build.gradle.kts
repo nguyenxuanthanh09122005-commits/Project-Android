@@ -16,13 +16,13 @@ android {
         buildConfigField(
             "String",
             "BASE_URL",
-            "\"http://192.168.1.20:8080/\""
+            "\"http://192.168.170.2:8080/\""
         )
 
         buildConfigField(
             "String",
             "IMAGE_URL",
-            "\"http://192.168.1.20:8080/uploads/\""
+            "\"http://192.168.170.2:8080/uploads/\""
         )
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -58,10 +58,13 @@ dependencies {
     androidTestImplementation(libs.espresso.core)
     implementation(libs.retrofit)
     implementation(libs.retrofit2.converter.gson)
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
     implementation(libs.glide)
+    implementation("com.github.bumptech.glide:okhttp3-integration:4.12.0")
     annotationProcessor(libs.glide.compiler)
     implementation(libs.recyclerview)
     implementation(libs.flexbox)
     implementation(libs.lifecycle.livedata)
     implementation(libs.lifecycle.viewmodel)
+    implementation(libs.swiperefreshlayout)
 }

@@ -11,11 +11,12 @@ public class SeatLayoutResponse {
     public Long getShowtimeId() { return showtimeId; }
     public String getRoomName() { return roomName; }
     public List<Seat> getSeats() {
-        if (seats == null) return null;
+        if (seats == null || seats.isEmpty()) return new ArrayList<>();
         List<Seat> processedSeats = new ArrayList<>();
         List<Long> addedPairIds = new ArrayList<>();
 
         for (Seat seat : seats) {
+            if (seat == null) continue;
             if (seat.isCouple() && seat.getPairId() != null) {
                 if (!addedPairIds.contains(seat.getPairId())) {
                     processedSeats.add(seat);
@@ -29,7 +30,7 @@ public class SeatLayoutResponse {
     }
 
     public List<Seat> getRawSeats() {
-        return seats;
+        return seats != null ? seats : new ArrayList<>();
     }
 
     public int getTotalColumns() {

@@ -24,7 +24,7 @@ public class MovieDetailActivity
 
     private Long movieId;
     private String movieName;
-
+    private Long cinemaId;
     @Override
     protected void onCreate(
             Bundle savedInstanceState
@@ -77,25 +77,30 @@ public class MovieDetailActivity
                 );
     }
 
-    private void getIntentData(){
+    private void getIntentData() {
+        movieId = getIntent().hasExtra("movieId")
+                ? getIntent().getLongExtra("movieId", -1)
+                : null;
 
-        movieId =
-                getIntent()
-                        .hasExtra("movieId")
-                        ?
-                        getIntent()
-                                .getLongExtra(
-                                        "movieId",
-                                        -1
-                                )
-                        :
-                        null;
+        movieName = getIntent().getStringExtra("movieName");
 
-        movieName =
-                getIntent()
-                        .getStringExtra(
-                                "movieName"
-                        );
+        // Ưu tiên lấy cinemaId từ Intent nếu có
+        if (getIntent().hasExtra("cinemaId")) {
+            cinemaId = getIntent().getLongExtra("cinemaId", -1);
+        } else {
+            // Nếu không có trong Intent, kiểm tra SharedPreferences nhưng không để mặc định là 1L
+            android.content.SharedPreferences prefs = getSharedPreferences("CinemaPrefs", MODE_PRIVATE);
+            if (prefs.contains("selected_cinema_id")) {
+                cinemaId = prefs.getLong("selected_cinema_id", -1L);
+            } else {
+                cinemaId = null;
+            }
+        }
+
+        // Nếu cinemaId là -1 thì coi như là "Tất cả rạp"
+        if (cinemaId != null && cinemaId == -1) {
+            cinemaId = null;
+        }
     }
 
     private void setupTopBar(){
@@ -114,16 +119,9 @@ public class MovieDetailActivity
 
     private void setupViewPager(){
 
-        pagerAdapter =
-                new MovieDetailPagerAdapter(
-                        this,
-                        movieId,
-                        movieName
-                );
-
-        viewPager.setAdapter(
-                pagerAdapter
-        );
+        // CHỈ GIỮ LẠI KHỞI TẠO NÀY (Đã truyền đầy đủ cinemaId)
+        pagerAdapter = new MovieDetailPagerAdapter(this, movieId, movieName, cinemaId);
+        viewPager.setAdapter(pagerAdapter);
 
         // Defer setting offscreen page limit to avoid blocking the main thread during transition/rendering
         viewPager.post(() -> {
@@ -136,22 +134,14 @@ public class MovieDetailActivity
                 movieTabs,
                 viewPager,
                 (tab,position)->{
-
                     switch(position){
-
                         case 0:
-                            tab.setText(
-                                    "Suất chiếu"
-                            );
+                            tab.setText("Suất chiếu");
                             break;
-
                         case 1:
-                            tab.setText(
-                                    "Thông tin"
-                            );
+                            tab.setText("Thông tin");
                             break;
                     }
-
                 }
         ).attach();
     }
