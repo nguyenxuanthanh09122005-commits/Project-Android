@@ -1,8 +1,3 @@
 <resources>
-    <string name="app_name">Movie_Booking</string>
-    <string name="choose_movie">Chọn Phim</string>
-    <string name="search_hint">Tìm kiếm phim...</string>
-    <string name="now_playing">Đang chiếu</string>
-    <string name="coming_soon">Sắp chiếu</string>
-    <string name="hot_movies">Phim HOT !!!</string>
+    <string name="app_name">movie_booking</string>
 </resources>

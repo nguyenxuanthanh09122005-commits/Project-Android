@@ -3,15 +3,27 @@ plugins {
 }
 
 android {
-    namespace = "com.example.movie_booking"
-    compileSdk = 35
+    namespace = "com.cinema.movie_booking"
+    compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.movie_booking"
-        minSdk = 24
-        targetSdk = 35
+        applicationId = "com.cinema.movie_booking"
+        minSdk = 26
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
+
+        buildConfigField(
+            "String",
+            "BASE_URL",
+            "\"http://192.168.170.2:8080/\""
+        )
+
+        buildConfigField(
+            "String",
+            "IMAGE_URL",
+            "\"http://192.168.170.2:8080/uploads/\""
+        )
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -25,6 +37,11 @@ android {
             )
         }
     }
+
+    buildFeatures {
+        buildConfig = true
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -39,25 +56,15 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
-    implementation("androidx.core:core-splashscreen:1.0.1")
-    val room_version = "2.6.1"
-
-    implementation("androidx.room:room-runtime:$room_version")
-
-    annotationProcessor("androidx.room:room-compiler:$room_version")
-
-    // optional - RxJava2 support for Room
-    implementation("androidx.room:room-rxjava2:$room_version")
-
-    // optional - RxJava3 support for Room
-    implementation("androidx.room:room-rxjava3:$room_version")
-
-    // optional - Guava support for Room, including Optional and ListenableFuture
-    implementation("androidx.room:room-guava:$room_version")
-
-    // optional - Test helpers
-    testImplementation("androidx.room:room-testing:$room_version")
-
-    // optional - Paging 3 Integration
-    implementation("androidx.room:room-paging:$room_version")
+    implementation(libs.retrofit)
+    implementation(libs.retrofit2.converter.gson)
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+    implementation(libs.glide)
+    implementation("com.github.bumptech.glide:okhttp3-integration:4.12.0")
+    annotationProcessor(libs.glide.compiler)
+    implementation(libs.recyclerview)
+    implementation(libs.flexbox)
+    implementation(libs.lifecycle.livedata)
+    implementation(libs.lifecycle.viewmodel)
+    implementation(libs.swiperefreshlayout)
 }
